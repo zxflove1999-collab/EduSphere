@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.DormRoomMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.DormRoom">
+        <id column="room_id" property="roomId"/>
+        <result column="building_id" property="buildingId"/>
+        <result column="room_number" property="roomNumber"/>
+        <result column="full_name" property="fullName"/>
+        <result column="total_beds" property="totalBeds"/>
+        <result column="occupied_beds" property="occupiedBeds"/>
+        <result column="room_status" property="roomStatus"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_dorm_room WHERE room_id = #{roomId}
+    </select>
+
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT r.*, b.building_name
+        FROM t_dorm_room r
+        INNER JOIN t_dorm_building b ON r.building_id = b.building_id
+        <where>
+            <if test="buildingId != null">
+                AND r.building_id = #{buildingId}
+            </if>
+            <if test="roomNumber != null and roomNumber != ''">
+                AND r.room_number LIKE CONCAT('%', #{roomNumber}, '%')
+            </if>
+            <if test="roomStatus != null">
+                AND r.room_status = #{roomStatus}
+            </if>
+        </where>
+        ORDER BY r.room_id
+    </select>
+
+    <select id="selectAvailableRooms" resultMap="BaseResultMap">
+        SELECT r.*
+        FROM t_dorm_room r
+        INNER JOIN t_dorm_building b ON r.building_id = b.building_id
+        WHERE r.room_status = 1
+        AND r.occupied_beds &lt; r.total_beds
+        <if test="buildingId != null">
+            AND r.building_id = #{buildingId}
+        </if>
+        <if test="genderLimit != null">
+            AND (b.gender_limit = 0 OR b.gender_limit = #{genderLimit})
+        </if>
+        ORDER BY r.room_id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="roomId">
+        INSERT INTO t_dorm_room (building_id, room_number, full_name, total_beds, occupied_beds, room_status)
+        VALUES (#{buildingId}, #{roomNumber}, #{fullName}, #{totalBeds}, #{occupiedBeds}, #{roomStatus})
+    </insert>
+
+    <update id="update">
+        UPDATE t_dorm_room
+        <set>
+            <if test="buildingId != null">building_id = #{buildingId},</if>
+            <if test="roomNumber != null">room_number = #{roomNumber},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="totalBeds != null">total_beds = #{totalBeds},</if>
+            <if test="occupiedBeds != null">occupied_beds = #{occupiedBeds},</if>
+            <if test="roomStatus != null">room_status = #{roomStatus},</if>
+        </set>
+        WHERE room_id = #{roomId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_dorm_room SET room_status = #{roomStatus} WHERE room_id = #{roomId}
+    </update>
+
+    <update id="updateOccupiedBeds">
+        UPDATE t_dorm_room SET occupied_beds = #{occupiedBeds} WHERE room_id = #{roomId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_dorm_room WHERE room_id = #{roomId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.ForumPostMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.ForumPost">
+        <id column="post_id" property="postId"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="author_id" property="authorId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="post_status" property="postStatus"/>
+        <result column="is_top" property="isTop"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <resultMap id="WithAuthorResultMap" type="com.example.campus.entity.ForumPost">
+        <id column="post_id" property="postId"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="author_id" property="authorId"/>
+        <result column="author_name" property="authorName"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="post_status" property="postStatus"/>
+        <result column="is_top" property="isTop"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_forum_post WHERE post_id = #{postId}
+    </select>
+
+    <select id="selectByCondition" resultType="map">
+        SELECT p.*, u.full_name as author_name, c.category_name
+        FROM t_forum_post p
+        INNER JOIN t_user u ON p.author_id = u.user_id
+        INNER JOIN t_forum_category c ON p.category_id = c.category_id
+        <where>
+            <if test="categoryId != null">
+                AND p.category_id = #{categoryId}
+            </if>
+            <if test="authorId != null">
+                AND p.author_id = #{authorId}
+            </if>
+            <if test="postStatus != null">
+                AND p.post_status = #{postStatus}
+            </if>
+            <if test="title != null and title != ''">
+                AND p.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </where>
+        ORDER BY p.is_top DESC, p.created_at DESC
+    </select>
+
+    <select id="selectTopPosts" resultMap="BaseResultMap">
+        SELECT * FROM t_forum_post
+        WHERE is_top = 1 AND post_status = 1
+        <if test="categoryId != null">
+            AND category_id = #{categoryId}
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="postId">
+        INSERT INTO t_forum_post (category_id, author_id, title, content, post_status, is_top, view_count)
+        VALUES (#{categoryId}, #{authorId}, #{title}, #{content}, #{postStatus}, #{isTop}, #{viewCount})
+    </insert>
+
+    <update id="update">
+        UPDATE t_forum_post
+        <set>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="postStatus != null">post_status = #{postStatus},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="viewCount != null">view_count = #{viewCount},</if>
+        </set>
+        WHERE post_id = #{postId}
+    </update>
+
+    <update id="updateViewCount">
+        UPDATE t_forum_post SET view_count = view_count + 1 WHERE post_id = #{postId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_forum_post 
+        SET post_status = #{postStatus}, deleted_by = #{deletedBy}
+        WHERE post_id = #{postId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_forum_post WHERE post_id = #{postId}
+    </delete>
+
+</mapper>
+

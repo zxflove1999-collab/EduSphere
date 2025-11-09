@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.ForumCommentMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.ForumComment">
+        <id column="comment_id" property="commentId"/>
+        <result column="post_id" property="postId"/>
+        <result column="author_id" property="authorId"/>
+        <result column="parent_comment_id" property="parentCommentId"/>
+        <result column="content" property="content"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_forum_comment WHERE comment_id = #{commentId}
+    </select>
+
+    <select id="selectByPostId" resultType="map">
+        SELECT c.*, u.full_name as author_name
+        FROM t_forum_comment c
+        INNER JOIN t_user u ON c.author_id = u.user_id
+        WHERE c.post_id = #{postId} AND c.is_deleted = 0
+        ORDER BY c.created_at ASC
+    </select>
+
+    <select id="selectByParentCommentId" resultMap="BaseResultMap">
+        SELECT * FROM t_forum_comment 
+        WHERE parent_comment_id = #{parentCommentId} AND is_deleted = 0
+        ORDER BY created_at ASC
+    </select>
+
+    <select id="selectByAuthorId" resultMap="BaseResultMap">
+        SELECT * FROM t_forum_comment 
+        WHERE author_id = #{authorId} AND is_deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO t_forum_comment (post_id, author_id, parent_comment_id, content, is_deleted)
+        VALUES (#{postId}, #{authorId}, #{parentCommentId}, #{content}, #{isDeleted})
+    </insert>
+
+    <update id="update">
+        UPDATE t_forum_comment
+        <set>
+            <if test="postId != null">post_id = #{postId},</if>
+            <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="parentCommentId != null">parent_comment_id = #{parentCommentId},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </set>
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_forum_comment SET is_deleted = #{isDeleted} WHERE comment_id = #{commentId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_forum_comment WHERE comment_id = #{commentId}
+    </delete>
+
+</mapper>
+
