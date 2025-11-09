@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.StudentGradeMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.StudentGrade">
+        <id column="grade_id" property="gradeId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="component_id" property="componentId"/>
+        <result column="score" property="score"/>
+        <result column="recorded_by" property="recordedBy"/>
+        <result column="recorded_at" property="recordedAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_student_grade WHERE grade_id = #{gradeId}
+    </select>
+
+    <select id="selectByStudentAndComponent" resultMap="BaseResultMap">
+        SELECT * FROM t_student_grade 
+        WHERE student_id = #{studentId} AND component_id = #{componentId}
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT sg.*, gc.class_id
+        FROM t_student_grade sg
+        INNER JOIN t_grade_component gc ON sg.component_id = gc.component_id
+        WHERE gc.class_id = #{classId}
+    </select>
+
+    <select id="selectByStudentIdAndClassId" resultMap="BaseResultMap">
+        SELECT sg.*, gc.component_name, gc.weight, gc.max_score
+        FROM t_student_grade sg
+        INNER JOIN t_grade_component gc ON sg.component_id = gc.component_id
+        WHERE sg.student_id = #{studentId} AND gc.class_id = #{classId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="gradeId">
+        INSERT INTO t_student_grade (student_id, component_id, score, recorded_by)
+        VALUES (#{studentId}, #{componentId}, #{score}, #{recordedBy})
+        ON DUPLICATE KEY UPDATE score = #{score}, recorded_by = #{recordedBy}, recorded_at = NOW()
+    </insert>
+
+    <update id="update">
+        UPDATE t_student_grade
+        <set>
+            <if test="score != null">score = #{score},</if>
+            <if test="recordedBy != null">recorded_by = #{recordedBy},</if>
+        </set>
+        WHERE grade_id = #{gradeId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_student_grade WHERE grade_id = #{gradeId}
+    </delete>
+
+</mapper>
+

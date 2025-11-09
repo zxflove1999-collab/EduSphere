@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.TeachingSuggestionMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.TeachingSuggestion">
+        <id column="suggestion_id" property="suggestionId"/>
+        <result column="class_id" property="classId"/>
+        <result column="homework_id" property="homeworkId"/>
+        <result column="suggestion_content" property="suggestionContent"/>
+        <result column="generated_at" property="generatedAt"/>
+    </resultMap>
+
+    <select id="selectByHomeworkId" resultMap="BaseResultMap">
+        SELECT * FROM t_teaching_suggestion 
+        WHERE homework_id = #{homeworkId}
+        ORDER BY generated_at DESC
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT * FROM t_teaching_suggestion 
+        WHERE class_id = #{classId}
+        ORDER BY generated_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="suggestionId">
+        INSERT INTO t_teaching_suggestion (class_id, homework_id, suggestion_content)
+        VALUES (#{classId}, #{homeworkId}, #{suggestionContent})
+    </insert>
+
+</mapper>
+

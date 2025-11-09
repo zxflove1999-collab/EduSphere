@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.BorrowRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.BorrowRecord">
+        <id column="record_id" property="recordId"/>
+        <result column="book_id" property="bookId"/>
+        <result column="borrower_id" property="borrowerId"/>
+        <result column="policy_id" property="policyId"/>
+        <result column="borrow_date" property="borrowDate"/>
+        <result column="due_date" property="dueDate"/>
+        <result column="return_date" property="returnDate"/>
+        <result column="status" property="status"/>
+        <result column="renewal_count" property="renewalCount"/>
+        <result column="fine_amount" property="fineAmount"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_borrow_record WHERE record_id = #{recordId}
+    </select>
+
+    <select id="selectByBorrowerId" resultMap="BaseResultMap">
+        SELECT br.*, b.title, b.isbn, b.author
+        FROM t_borrow_record br
+        INNER JOIN t_book b ON br.book_id = b.book_id
+        WHERE br.borrower_id = #{borrowerId}
+        ORDER BY br.borrow_date DESC
+    </select>
+
+    <select id="selectByBookId" resultMap="BaseResultMap">
+        SELECT * FROM t_borrow_record WHERE book_id = #{bookId} ORDER BY borrow_date DESC
+    </select>
+
+    <select id="selectBorrowingByBorrowerId" resultMap="BaseResultMap">
+        SELECT br.*, b.title, b.isbn, b.author
+        FROM t_borrow_record br
+        INNER JOIN t_book b ON br.book_id = b.book_id
+        WHERE br.borrower_id = #{borrowerId} AND br.status = 1
+        ORDER BY br.due_date ASC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO t_borrow_record (book_id, borrower_id, policy_id, borrow_date, due_date, status, renewal_count, fine_amount)
+        VALUES (#{bookId}, #{borrowerId}, #{policyId}, #{borrowDate}, #{dueDate}, #{status}, #{renewalCount}, #{fineAmount})
+    </insert>
+
+    <update id="update">
+        UPDATE t_borrow_record
+        <set>
+            <if test="bookId != null">book_id = #{bookId},</if>
+            <if test="borrowerId != null">borrower_id = #{borrowerId},</if>
+            <if test="policyId != null">policy_id = #{policyId},</if>
+            <if test="borrowDate != null">borrow_date = #{borrowDate},</if>
+            <if test="dueDate != null">due_date = #{dueDate},</if>
+            <if test="returnDate != null">return_date = #{returnDate},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="renewalCount != null">renewal_count = #{renewalCount},</if>
+            <if test="fineAmount != null">fine_amount = #{fineAmount},</if>
+        </set>
+        WHERE record_id = #{recordId}
+    </update>
+
+    <update id="updateReturnDate">
+        UPDATE t_borrow_record SET return_date = #{returnDate}, status = 2 WHERE record_id = #{recordId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_borrow_record WHERE record_id = #{recordId}
+    </delete>
+
+</mapper>
+

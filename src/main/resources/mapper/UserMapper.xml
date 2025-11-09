@@ -62,5 +62,53 @@
         DELETE FROM t_user WHERE user_id = #{userId}
     </delete>
 
+    <select id="selectStudentsByCondition" resultMap="BaseResultMap">
+        SELECT DISTINCT u.* FROM t_user u
+        INNER JOIN t_user_role ur ON u.user_id = ur.user_id
+        INNER JOIN t_role r ON ur.role_id = r.role_id
+        INNER JOIN t_student_profile sp ON u.user_id = sp.user_id
+        WHERE r.role_key = 'student'
+        <if test="fullName != null and fullName != ''">
+            AND u.full_name LIKE CONCAT('%', #{fullName}, '%')
+        </if>
+        <if test="studentIdNumber != null and studentIdNumber != ''">
+            AND sp.student_id_number = #{studentIdNumber}
+        </if>
+        <if test="major != null and major != ''">
+            AND sp.major LIKE CONCAT('%', #{major}, '%')
+        </if>
+        <if test="className != null and className != ''">
+            AND sp.class_name LIKE CONCAT('%', #{className}, '%')
+        </if>
+        <if test="status != null">
+            AND u.status = #{status}
+        </if>
+        ORDER BY u.created_at DESC
+    </select>
+
+    <select id="selectTeachersByCondition" resultMap="BaseResultMap">
+        SELECT DISTINCT u.* FROM t_user u
+        INNER JOIN t_user_role ur ON u.user_id = ur.user_id
+        INNER JOIN t_role r ON ur.role_id = r.role_id
+        INNER JOIN t_teacher_profile tp ON u.user_id = tp.user_id
+        WHERE r.role_key = 'teacher'
+        <if test="fullName != null and fullName != ''">
+            AND u.full_name LIKE CONCAT('%', #{fullName}, '%')
+        </if>
+        <if test="teacherIdNumber != null and teacherIdNumber != ''">
+            AND tp.teacher_id_number = #{teacherIdNumber}
+        </if>
+        <if test="department != null and department != ''">
+            AND tp.department LIKE CONCAT('%', #{department}, '%')
+        </if>
+        <if test="title != null and title != ''">
+            AND tp.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="status != null">
+            AND u.status = #{status}
+        </if>
+        ORDER BY u.created_at DESC
+    </select>
+
 </mapper>
 

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.SubmissionFileMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.SubmissionFile">
+        <id column="file_id" property="fileId"/>
+        <result column="submission_id" property="submissionId"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="uploaded_at" property="uploadedAt"/>
+    </resultMap>
+
+    <select id="selectBySubmissionId" resultMap="BaseResultMap">
+        SELECT * FROM t_submission_file WHERE submission_id = #{submissionId} ORDER BY uploaded_at
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="fileId">
+        INSERT INTO t_submission_file (submission_id, file_name, file_url, file_size)
+        VALUES (#{submissionId}, #{fileName}, #{fileUrl}, #{fileSize})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM t_submission_file WHERE file_id = #{fileId}
+    </delete>
+
+    <delete id="deleteBySubmissionId">
+        DELETE FROM t_submission_file WHERE submission_id = #{submissionId}
+    </delete>
+
+</mapper>
+

@@ -19,7 +19,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,10 +39,8 @@ public class TeacherService {
      */
     public PageResult<TeacherVO> listTeachers(Integer page, Integer pageSize, String fullName,
                                                String teacherIdNumber, String department, String title, Integer status) {
-        // 这里需要根据条件查询，简化处理
         PageHelper.startPage(page != null ? page : 1, pageSize != null ? pageSize : 10);
-        // TODO: 实现条件查询
-        List<User> users = new ArrayList<>();
+        List<User> users = userMapper.selectTeachersByCondition(fullName, teacherIdNumber, department, title, status);
         PageInfo<User> pageInfo = new PageInfo<>(users);
         
         List<TeacherVO> teacherVOs = users.stream().map(user -> {

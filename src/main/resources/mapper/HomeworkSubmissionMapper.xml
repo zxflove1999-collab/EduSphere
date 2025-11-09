@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.HomeworkSubmissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.HomeworkSubmission">
+        <id column="submission_id" property="submissionId"/>
+        <result column="homework_id" property="homeworkId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="content" property="content"/>
+        <result column="submitted_at" property="submittedAt"/>
+        <result column="status" property="status"/>
+        <result column="grade" property="grade"/>
+        <result column="teacher_feedback" property="teacherFeedback"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_homework_submission WHERE submission_id = #{submissionId}
+    </select>
+
+    <select id="selectByHomeworkAndStudent" resultMap="BaseResultMap">
+        SELECT * FROM t_homework_submission 
+        WHERE homework_id = #{homeworkId} AND student_id = #{studentId}
+    </select>
+
+    <select id="selectByHomeworkId" resultMap="BaseResultMap">
+        SELECT hs.*, u.full_name as student_name, u.student_id_number
+        FROM t_homework_submission hs
+        INNER JOIN t_user u ON hs.student_id = u.user_id
+        WHERE hs.homework_id = #{homeworkId}
+        <if test="status != null">
+            AND hs.status = #{status}
+        </if>
+        ORDER BY hs.submitted_at DESC
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT * FROM t_homework_submission 
+        WHERE student_id = #{studentId}
+        ORDER BY submitted_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="submissionId">
+        INSERT INTO t_homework_submission (homework_id, student_id, content, submitted_at, status)
+        VALUES (#{homeworkId}, #{studentId}, #{content}, NOW(), #{status})
+        ON DUPLICATE KEY UPDATE content = #{content}, submitted_at = NOW(), status = #{status}
+    </insert>
+
+    <update id="update">
+        UPDATE t_homework_submission
+        <set>
+            <if test="content != null">content = #{content},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="grade != null">grade = #{grade},</if>
+            <if test="teacherFeedback != null">teacher_feedback = #{teacherFeedback},</if>
+        </set>
+        WHERE submission_id = #{submissionId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_homework_submission WHERE submission_id = #{submissionId}
+    </delete>
+
+</mapper>
+

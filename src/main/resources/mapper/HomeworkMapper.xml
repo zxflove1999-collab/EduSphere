@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.HomeworkMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.Homework">
+        <id column="homework_id" property="homeworkId"/>
+        <result column="class_id" property="classId"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="due_date" property="dueDate"/>
+        <result column="allow_late_submission" property="allowLateSubmission"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_homework WHERE homework_id = #{homeworkId}
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT h.*, 
+               (SELECT COUNT(*) FROM t_homework_submission WHERE homework_id = h.homework_id) as submission_count
+        FROM t_homework h
+        WHERE h.class_id = #{classId}
+        ORDER BY h.created_at DESC
+    </select>
+
+    <select id="countSubmissions" resultType="int">
+        SELECT COUNT(*) FROM t_homework_submission WHERE homework_id = #{homeworkId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="homeworkId">
+        INSERT INTO t_homework (class_id, created_by, title, description, due_date, allow_late_submission)
+        VALUES (#{classId}, #{createdBy}, #{title}, #{description}, #{dueDate}, #{allowLateSubmission})
+    </insert>
+
+    <update id="update">
+        UPDATE t_homework
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="dueDate != null">due_date = #{dueDate},</if>
+            <if test="allowLateSubmission != null">allow_late_submission = #{allowLateSubmission},</if>
+        </set>
+        WHERE homework_id = #{homeworkId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_homework WHERE homework_id = #{homeworkId}
+    </delete>
+
+</mapper>
+

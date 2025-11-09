@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.DepartmentMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.Department">
+        <id column="department_id" property="departmentId"/>
+        <result column="department_name" property="departmentName"/>
+        <result column="description" property="description"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_department WHERE department_id = #{departmentId}
+    </select>
+
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT * FROM t_department
+        <where>
+            <if test="departmentName != null and departmentName != ''">
+                AND department_name LIKE CONCAT('%', #{departmentName}, '%')
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectSimpleList" resultType="map">
+        SELECT department_id, department_name FROM t_department ORDER BY department_id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="departmentId">
+        INSERT INTO t_department (department_name, description)
+        VALUES (#{departmentName}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE t_department
+        <set>
+            <if test="departmentName != null">department_name = #{departmentName},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE department_id = #{departmentId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_department WHERE department_id = #{departmentId}
+    </delete>
+
+</mapper>
+

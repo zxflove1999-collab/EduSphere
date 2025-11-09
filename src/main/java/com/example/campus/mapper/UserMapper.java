@@ -19,5 +19,15 @@ public interface UserMapper {
     int updateTokenVersion(@Param("userId") Long userId);
     List<User> selectByIds(@Param("userIds") List<Long> userIds);
     int deleteById(@Param("userId") Long userId);
+    List<User> selectStudentsByCondition(@Param("fullName") String fullName,
+                                         @Param("studentIdNumber") String studentIdNumber,
+                                         @Param("major") String major,
+                                         @Param("className") String className,
+                                         @Param("status") Integer status);
+    List<User> selectTeachersByCondition(@Param("fullName") String fullName,
+                                         @Param("teacherIdNumber") String teacherIdNumber,
+                                         @Param("department") String department,
+                                         @Param("title") String title,
+                                         @Param("status") Integer status);
 }
 

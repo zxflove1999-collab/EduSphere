@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.CourseResourceMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.CourseResource">
+        <id column="resource_id" property="resourceId"/>
+        <result column="class_id" property="classId"/>
+        <result column="folder_id" property="folderId"/>
+        <result column="uploader_id" property="uploaderId"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_type" property="fileType"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="description" property="description"/>
+        <result column="upload_at" property="uploadAt"/>
+        <result column="download_count" property="downloadCount"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_course_resource WHERE resource_id = #{resourceId}
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT r.*, u.full_name as uploader_name
+        FROM t_course_resource r
+        LEFT JOIN t_user u ON r.uploader_id = u.user_id
+        WHERE r.class_id = #{classId}
+        <if test="folderId == null">
+            AND r.folder_id IS NULL
+        </if>
+        <if test="folderId != null">
+            AND r.folder_id = #{folderId}
+        </if>
+        ORDER BY r.upload_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="resourceId">
+        INSERT INTO t_course_resource (class_id, folder_id, uploader_id, file_name, file_url, file_type, file_size, description)
+        VALUES (#{classId}, #{folderId}, #{uploaderId}, #{fileName}, #{fileUrl}, #{fileType}, #{fileSize}, #{description})
+    </insert>
+
+    <update id="updateDownloadCount">
+        UPDATE t_course_resource SET download_count = download_count + 1 WHERE resource_id = #{resourceId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_course_resource WHERE resource_id = #{resourceId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.ReservationRequestMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.ReservationRequest">
+        <id column="request_id" property="requestId"/>
+        <result column="room_id" property="roomId"/>
+        <result column="requester_id" property="requesterId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="purpose" property="purpose"/>
+        <result column="participants_count" property="participantsCount"/>
+        <result column="status" property="status"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approval_remarks" property="approvalRemarks"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_reservation_request WHERE request_id = #{requestId}
+    </select>
+
+    <select id="selectByRequesterId" resultMap="BaseResultMap">
+        SELECT r.*, c.full_name as room_name, b.building_name
+        FROM t_reservation_request r
+        INNER JOIN t_classroom c ON r.room_id = c.room_id
+        INNER JOIN t_building b ON c.building_id = b.building_id
+        WHERE r.requester_id = #{requesterId}
+        <if test="status != null">
+            AND r.status = #{status}
+        </if>
+        <if test="dateFrom != null">
+            AND DATE(r.start_time) &gt;= #{dateFrom}
+        </if>
+        ORDER BY r.created_at DESC
+    </select>
+
+    <select id="selectPending" resultMap="BaseResultMap">
+        SELECT r.*, c.full_name as room_name, b.building_name, u.full_name as requester_name
+        FROM t_reservation_request r
+        INNER JOIN t_classroom c ON r.room_id = c.room_id
+        INNER JOIN t_building b ON c.building_id = b.building_id
+        INNER JOIN t_user u ON r.requester_id = u.user_id
+        WHERE r.status = 1
+        ORDER BY r.created_at ASC
+    </select>
+
+    <select id="selectByRoomIdAndTimeRange" resultMap="BaseResultMap">
+        SELECT * FROM t_reservation_request
+        WHERE room_id = #{roomId}
+        AND status = 2
+        AND (
+            (start_time &lt;= #{startTime} AND end_time &gt; #{startTime})
+            OR (start_time &lt; #{endTime} AND end_time &gt;= #{endTime})
+            OR (start_time &gt;= #{startTime} AND end_time &lt;= #{endTime})
+        )
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="requestId">
+        INSERT INTO t_reservation_request (room_id, requester_id, start_time, end_time, purpose, participants_count, status, created_at, updated_at)
+        VALUES (#{roomId}, #{requesterId}, #{startTime}, #{endTime}, #{purpose}, #{participantsCount}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE t_reservation_request
+        <set>
+            <if test="roomId != null">room_id = #{roomId},</if>
+            <if test="requesterId != null">requester_id = #{requesterId},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="purpose != null">purpose = #{purpose},</if>
+            <if test="participantsCount != null">participants_count = #{participantsCount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="approvalRemarks != null">approval_remarks = #{approvalRemarks},</if>
+            updated_at = NOW()
+        </set>
+        WHERE request_id = #{requestId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_reservation_request SET status = #{status}, updated_at = NOW() WHERE request_id = #{requestId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_reservation_request WHERE request_id = #{requestId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.GradeComponentMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.GradeComponent">
+        <id column="component_id" property="componentId"/>
+        <result column="class_id" property="classId"/>
+        <result column="component_name" property="componentName"/>
+        <result column="weight" property="weight"/>
+        <result column="max_score" property="maxScore"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_grade_component WHERE component_id = #{componentId}
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT * FROM t_grade_component WHERE class_id = #{classId} ORDER BY created_at
+    </select>
+
+    <select id="countByComponentId" resultType="int">
+        SELECT COUNT(*) FROM t_student_grade WHERE component_id = #{componentId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="componentId">
+        INSERT INTO t_grade_component (class_id, component_name, weight, max_score)
+        VALUES (#{classId}, #{componentName}, #{weight}, #{maxScore})
+    </insert>
+
+    <update id="update">
+        UPDATE t_grade_component
+        <set>
+            <if test="componentName != null">component_name = #{componentName},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="maxScore != null">max_score = #{maxScore},</if>
+        </set>
+        WHERE component_id = #{componentId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_grade_component WHERE component_id = #{componentId}
+    </delete>
+
+</mapper>
+

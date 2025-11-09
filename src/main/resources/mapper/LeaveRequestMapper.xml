@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.LeaveRequestMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.LeaveRequest">
+        <id column="request_id" property="requestId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="class_id" property="classId"/>
+        <result column="reason" property="reason"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="status" property="status"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approval_remarks" property="approvalRemarks"/>
+        <result column="submitted_at" property="submittedAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_leave_request WHERE request_id = #{requestId}
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT * FROM t_leave_request 
+        WHERE student_id = #{studentId}
+        ORDER BY submitted_at DESC
+    </select>
+
+    <select id="selectPendingByApproverId" resultMap="BaseResultMap">
+        SELECT * FROM t_leave_request 
+        WHERE approver_id = #{approverId} AND status = 1
+        ORDER BY submitted_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="requestId">
+        INSERT INTO t_leave_request (student_id, class_id, reason, start_time, end_time, approver_id, status)
+        VALUES (#{studentId}, #{classId}, #{reason}, #{startTime}, #{endTime}, #{approverId}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE t_leave_request
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="approverId != null">approver_id = #{approverId},</if>
+            <if test="approvalRemarks != null">approval_remarks = #{approvalRemarks},</if>
+        </set>
+        WHERE request_id = #{requestId}
+    </update>
+
+</mapper>
+

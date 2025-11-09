@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.AttendanceRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.AttendanceRecord">
+        <id column="record_id" property="recordId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="status" property="status"/>
+        <result column="check_in_time" property="checkInTime"/>
+        <result column="check_in_latitude" property="checkInLatitude"/>
+        <result column="check_in_longitude" property="checkInLongitude"/>
+        <result column="face_api_score" property="faceApiScore"/>
+        <result column="remarks" property="remarks"/>
+        <result column="updated_by" property="updatedBy"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_attendance_record WHERE record_id = #{recordId}
+    </select>
+
+    <select id="selectBySessionAndStudent" resultMap="BaseResultMap">
+        SELECT * FROM t_attendance_record 
+        WHERE session_id = #{sessionId} AND student_id = #{studentId}
+    </select>
+
+    <select id="selectBySessionId" resultMap="BaseResultMap">
+        SELECT ar.*, u.full_name as student_name, sp.student_id_number
+        FROM t_attendance_record ar
+        INNER JOIN t_user u ON ar.student_id = u.user_id
+        LEFT JOIN t_student_profile sp ON u.user_id = sp.user_id
+        WHERE ar.session_id = #{sessionId}
+        <if test="status != null">
+            AND ar.status = #{status}
+        </if>
+        ORDER BY ar.check_in_time DESC
+    </select>
+
+    <select id="selectByStudentIdAndClassId" resultMap="BaseResultMap">
+        SELECT ar.*, s.start_time as session_start_time
+        FROM t_attendance_record ar
+        INNER JOIN t_attendance_session s ON ar.session_id = s.session_id
+        WHERE ar.student_id = #{studentId} AND s.class_id = #{classId}
+        ORDER BY s.start_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO t_attendance_record (session_id, student_id, status, check_in_time, 
+                                        check_in_latitude, check_in_longitude, face_api_score)
+        VALUES (#{sessionId}, #{studentId}, #{status}, #{checkInTime}, 
+                #{checkInLatitude}, #{checkInLongitude}, #{faceApiScore})
+        ON DUPLICATE KEY UPDATE status = #{status}, check_in_time = #{checkInTime},
+                                check_in_latitude = #{checkInLatitude}, 
+                                check_in_longitude = #{checkInLongitude},
+                                face_api_score = #{faceApiScore}
+    </insert>
+
+    <update id="update">
+        UPDATE t_attendance_record
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+        </set>
+        WHERE record_id = #{recordId}
+    </update>
+
+</mapper>
+

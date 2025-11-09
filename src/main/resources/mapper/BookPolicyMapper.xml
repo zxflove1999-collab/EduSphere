@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.BookPolicyMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.BookPolicy">
+        <id column="policy_id" property="policyId"/>
+        <result column="policy_name" property="policyName"/>
+        <result column="max_duration_days" property="maxDurationDays"/>
+        <result column="max_borrow_count" property="maxBorrowCount"/>
+        <result column="allow_renewal_count" property="allowRenewalCount"/>
+        <result column="user_type_scope" property="userTypeScope"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_book_policy WHERE policy_id = #{policyId}
+    </select>
+
+    <select id="selectByUserType" resultMap="BaseResultMap">
+        SELECT * FROM t_book_policy WHERE user_type_scope = #{userTypeScope} OR user_type_scope IS NULL
+        ORDER BY user_type_scope DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM t_book_policy ORDER BY policy_id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="policyId">
+        INSERT INTO t_book_policy (policy_name, max_duration_days, max_borrow_count, allow_renewal_count, user_type_scope)
+        VALUES (#{policyName}, #{maxDurationDays}, #{maxBorrowCount}, #{allowRenewalCount}, #{userTypeScope})
+    </insert>
+
+    <update id="update">
+        UPDATE t_book_policy
+        <set>
+            <if test="policyName != null">policy_name = #{policyName},</if>
+            <if test="maxDurationDays != null">max_duration_days = #{maxDurationDays},</if>
+            <if test="maxBorrowCount != null">max_borrow_count = #{maxBorrowCount},</if>
+            <if test="allowRenewalCount != null">allow_renewal_count = #{allowRenewalCount},</if>
+            <if test="userTypeScope != null">user_type_scope = #{userTypeScope},</if>
+        </set>
+        WHERE policy_id = #{policyId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_book_policy WHERE policy_id = #{policyId}
+    </delete>
+
+</mapper>
+

@@ -6,6 +6,7 @@ import com.example.campus.dto.ProfileUpdateRequest;
 import com.example.campus.entity.StudentProfile;
 import com.example.campus.entity.TeacherProfile;
 import com.example.campus.entity.User;
+import com.example.campus.mapper.RoleMapper;
 import com.example.campus.mapper.StudentProfileMapper;
 import com.example.campus.mapper.TeacherProfileMapper;
 import com.example.campus.mapper.UserMapper;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 public class ProfileService {
     private final UserMapper userMapper;
     private final UserRoleMapper userRoleMapper;
+    private final RoleMapper roleMapper;
     private final StudentProfileMapper studentProfileMapper;
     private final TeacherProfileMapper teacherProfileMapper;
     private final PasswordUtil passwordUtil;
@@ -51,8 +53,18 @@ public class ProfileService {
         List<Integer> roleIds = userRoleMapper.selectRoleIdsByUserId(userId);
         List<RoleVO> roles = roleIds.stream().map(roleId -> {
             RoleVO roleVO = new RoleVO();
-            // 这里应该查询角色详情，简化处理
-            roleVO.setRoleId(roleId);
+            // 查询角色详情
+            com.example.campus.entity.Role role = roleMapper.selectById(roleId);
+            if (role != null) {
+                roleVO.setRoleId(role.getRoleId());
+                roleVO.setRoleName(role.getRoleName());
+                roleVO.setRoleKey(role.getRoleKey());
+                roleVO.setDescription(role.getDescription());
+                roleVO.setIsSystem(role.getIsSystem());
+                if (role.getCreatedAt() != null) {
+                    roleVO.setCreatedAt(role.getCreatedAt().toString());
+                }
+            }
             return roleVO;
         }).collect(Collectors.toList());
         vo.setRoles(roles);
