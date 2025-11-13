@@ -35,23 +35,39 @@
         SELECT * FROM t_forum_post WHERE post_id = #{postId}
     </select>
 
+    <select id="selectDetailById" resultType="map">
+        SELECT p.post_id,
+               p.category_id,
+               p.author_id,
+               u.full_name AS author_name,
+               p.title,
+               p.content,
+               p.post_status,
+               p.is_top,
+               p.view_count,
+               p.created_at,
+               p.updated_at
+        FROM t_forum_post p
+        INNER JOIN t_user u ON p.author_id = u.user_id
+        WHERE p.post_id = #{postId}
+    </select>
+
     <select id="selectByCondition" resultType="map">
         SELECT p.*, u.full_name as author_name, c.category_name
         FROM t_forum_post p
         INNER JOIN t_user u ON p.author_id = u.user_id
         INNER JOIN t_forum_category c ON p.category_id = c.category_id
         <where>
+            AND p.post_status = 1
             <if test="categoryId != null">
                 AND p.category_id = #{categoryId}
             </if>
-            <if test="authorId != null">
-                AND p.author_id = #{authorId}
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND (p.title LIKE CONCAT('%', #{searchKeyword}, '%')
+                     OR p.content LIKE CONCAT('%', #{searchKeyword}, '%'))
             </if>
-            <if test="postStatus != null">
-                AND p.post_status = #{postStatus}
-            </if>
-            <if test="title != null and title != ''">
-                AND p.title LIKE CONCAT('%', #{title}, '%')
+            <if test="isTop != null">
+                AND p.is_top = #{isTop}
             </if>
         </where>
         ORDER BY p.is_top DESC, p.created_at DESC

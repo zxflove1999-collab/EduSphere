@@ -406,6 +406,8 @@ CREATE TABLE t_dorm_room (
     total_beds TINYINT NOT NULL DEFAULT 4 COMMENT '房间总床位数',
     occupied_beds TINYINT NOT NULL DEFAULT 0 COMMENT '已占用床位数 (冗余字段)',
     room_status TINYINT NOT NULL DEFAULT 1 COMMENT '房间状态 (1:正常, 2:维修, 3:已满)',
+    room_type VARCHAR(50) DEFAULT NULL COMMENT '房间类型 (如: 四人间, 六人间)',
+    has_private_bathroom TINYINT NOT NULL DEFAULT 0 COMMENT '是否有独立卫生间 (1:是, 0:否)',
     FOREIGN KEY (building_id) REFERENCES t_dorm_building(building_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='宿舍房间表 (宿舍管理)';
 
@@ -449,6 +451,22 @@ CREATE TABLE t_dorm_survey (
     matching_score DECIMAL(5,2) DEFAULT NULL COMMENT '问卷匹配得分',
     FOREIGN KEY (student_id) REFERENCES t_user(user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='宿舍问卷表 (收集住宿偏好信息)';
+
+
+-- 1.6 宿舍偏好表
+CREATE TABLE t_dorm_preference (
+    preference_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '宿舍偏好ID',
+    student_id BIGINT NOT NULL COMMENT '学生ID (t_user.user_id)',
+    wake_up_time TIME NOT NULL COMMENT '起床时间',
+    bedtime TIME NOT NULL COMMENT '睡觉时间',
+    study_habit_preference TINYINT DEFAULT NULL COMMENT '学习习惯偏好',
+    hygiene_preference TINYINT DEFAULT NULL COMMENT '卫生偏好',
+    noise_tolerance TINYINT DEFAULT NULL COMMENT '噪音容忍度',
+    self_introduction TEXT DEFAULT NULL COMMENT '自我介绍',
+    submission_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '提交时间',
+    matching_score DECIMAL(5,2) DEFAULT NULL COMMENT '匹配得分',
+    FOREIGN KEY (student_id) REFERENCES t_user(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='宿舍偏好问卷表';
 
 
 -- =========================================

@@ -5,19 +5,43 @@
     <resultMap id="BaseResultMap" type="com.example.campus.entity.DormRoom">
         <id column="room_id" property="roomId"/>
         <result column="building_id" property="buildingId"/>
+        <result column="building_name" property="buildingName"/>
         <result column="room_number" property="roomNumber"/>
         <result column="full_name" property="fullName"/>
         <result column="total_beds" property="totalBeds"/>
         <result column="occupied_beds" property="occupiedBeds"/>
         <result column="room_status" property="roomStatus"/>
+        <result column="room_type" property="roomType"/>
+        <result column="has_private_bathroom" property="hasPrivateBathroom"/>
     </resultMap>
 
     <select id="selectById" resultMap="BaseResultMap">
-        SELECT * FROM t_dorm_room WHERE room_id = #{roomId}
+        SELECT r.room_id,
+               r.building_id,
+               b.building_name,
+               r.room_number,
+               r.full_name,
+               r.total_beds,
+               r.occupied_beds,
+               r.room_status,
+               r.room_type,
+               r.has_private_bathroom
+        FROM t_dorm_room r
+        LEFT JOIN t_dorm_building b ON r.building_id = b.building_id
+        WHERE r.room_id = #{roomId}
     </select>
 
     <select id="selectByCondition" resultMap="BaseResultMap">
-        SELECT r.*, b.building_name
+        SELECT r.room_id,
+               r.building_id,
+               b.building_name,
+               r.room_number,
+               r.full_name,
+               r.total_beds,
+               r.occupied_beds,
+               r.room_status,
+               r.room_type,
+               r.has_private_bathroom
         FROM t_dorm_room r
         INNER JOIN t_dorm_building b ON r.building_id = b.building_id
         <where>
@@ -27,8 +51,18 @@
             <if test="roomNumber != null and roomNumber != ''">
                 AND r.room_number LIKE CONCAT('%', #{roomNumber}, '%')
             </if>
-            <if test="roomStatus != null">
-                AND r.room_status = #{roomStatus}
+            <if test="occupancyStatus != null">
+                <choose>
+                    <when test="occupancyStatus == 1">
+                        AND r.occupied_beds = 0
+                    </when>
+                    <when test="occupancyStatus == 2">
+                        AND r.occupied_beds &gt; 0 AND r.occupied_beds &lt; r.total_beds
+                    </when>
+                    <when test="occupancyStatus == 3">
+                        AND r.occupied_beds &gt;= r.total_beds
+                    </when>
+                </choose>
             </if>
         </where>
         ORDER BY r.room_id
@@ -50,8 +84,8 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="roomId">
-        INSERT INTO t_dorm_room (building_id, room_number, full_name, total_beds, occupied_beds, room_status)
-        VALUES (#{buildingId}, #{roomNumber}, #{fullName}, #{totalBeds}, #{occupiedBeds}, #{roomStatus})
+        INSERT INTO t_dorm_room (building_id, room_number, full_name, total_beds, occupied_beds, room_status, room_type, has_private_bathroom)
+        VALUES (#{buildingId}, #{roomNumber}, #{fullName}, #{totalBeds}, #{occupiedBeds}, #{roomStatus}, #{roomType}, #{hasPrivateBathroom})
     </insert>
 
     <update id="update">
@@ -63,6 +97,8 @@
             <if test="totalBeds != null">total_beds = #{totalBeds},</if>
             <if test="occupiedBeds != null">occupied_beds = #{occupiedBeds},</if>
             <if test="roomStatus != null">room_status = #{roomStatus},</if>
+            <if test="roomType != null">room_type = #{roomType},</if>
+            <if test="hasPrivateBathroom != null">has_private_bathroom = #{hasPrivateBathroom},</if>
         </set>
         WHERE room_id = #{roomId}
     </update>
@@ -78,6 +114,23 @@
     <delete id="deleteById">
         DELETE FROM t_dorm_room WHERE room_id = #{roomId}
     </delete>
+
+    <select id="selectOccupantsByRoomIds" resultType="map">
+        SELECT b.room_id,
+               b.bed_id,
+               b.bed_number,
+               u.user_id AS student_id,
+               u.full_name,
+               u.phone_number
+        FROM t_dorm_bed b
+        LEFT JOIN t_user u ON b.current_resident_id = u.user_id
+        WHERE b.room_id IN
+        <foreach collection="roomIds" item="roomId" open="(" separator="," close=")">
+            #{roomId}
+        </foreach>
+          AND b.bed_status = 2
+        ORDER BY b.room_id, b.bed_number
+    </select>
 
 </mapper>
 

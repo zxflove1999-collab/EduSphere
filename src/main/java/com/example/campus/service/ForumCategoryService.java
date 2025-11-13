@@ -3,11 +3,14 @@ package com.example.campus.service;
 import com.example.campus.common.BusinessException;
 import com.example.campus.entity.ForumCategory;
 import com.example.campus.mapper.ForumCategoryMapper;
+import com.example.campus.vo.ForumCategorySummaryVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 论坛板块服务
@@ -19,6 +22,18 @@ public class ForumCategoryService {
 
     public List<ForumCategory> listCategories(Integer isActive) {
         return forumCategoryMapper.selectAll(isActive);
+    }
+
+    public List<ForumCategorySummaryVO> listCategorySummaries() {
+        List<Map<String, Object>> rows = forumCategoryMapper.selectWithPostCount();
+        return rows.stream().map(row -> {
+            ForumCategorySummaryVO vo = new ForumCategorySummaryVO();
+            vo.setCategoryId(((Number) row.get("category_id")).intValue());
+            vo.setCategoryName((String) row.get("category_name"));
+            Object countObj = row.get("post_count");
+            vo.setPostCount(countObj != null ? ((Number) countObj).longValue() : 0L);
+            return vo;
+        }).collect(Collectors.toList());
     }
 
     public ForumCategory getCategory(Integer categoryId) {

@@ -47,16 +47,49 @@
     </update>
 
     <update id="updateStatus">
-        UPDATE t_dorm_bed 
-        SET bed_status = #{bedStatus}, 
+        UPDATE t_dorm_bed
+        SET bed_status = #{bedStatus},
             current_resident_id = #{residentId},
-            allocation_time = CASE WHEN #{bedStatus} = 2 THEN NOW() ELSE NULL END
+            allocation_time = CASE
+                                WHEN #{bedStatus} = 2 THEN #{allocationTime}
+                                ELSE NULL
+                              END
         WHERE bed_id = #{bedId}
     </update>
 
     <delete id="deleteById">
         DELETE FROM t_dorm_bed WHERE bed_id = #{bedId}
     </delete>
+
+    <select id="selectGlobalAvailableBeds" resultType="map">
+        SELECT b.bed_id,
+               b.room_id,
+               b.bed_number
+        FROM t_dorm_bed b
+        INNER JOIN t_dorm_room r ON b.room_id = r.room_id
+        WHERE b.bed_status = 1
+        <if test="buildingId != null">
+            AND r.building_id = #{buildingId}
+        </if>
+        ORDER BY r.room_id, b.bed_number
+    </select>
+
+    <select id="selectStudentsWithoutBed" resultType="long">
+        SELECT u.user_id
+        FROM t_user u
+        INNER JOIN t_student_profile sp ON u.user_id = sp.user_id
+        WHERE u.status = 1
+          AND NOT EXISTS (
+            SELECT 1
+            FROM t_dorm_bed b
+            WHERE b.current_resident_id = u.user_id
+              AND b.bed_status = 2
+          )
+        ORDER BY u.created_at
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
 
 </mapper>
 

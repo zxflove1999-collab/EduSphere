@@ -20,9 +20,9 @@ import java.util.List;
 public class DormBuildingService {
     private final DormBuildingMapper dormBuildingMapper;
 
-    public PageResult<DormBuilding> listBuildings(Integer page, Integer pageSize, String buildingName, Integer isActive) {
+    public PageResult<DormBuilding> listBuildings(Integer page, Integer pageSize, Integer genderLimit, Integer isActive) {
         PageHelper.startPage(page != null ? page : 1, pageSize != null ? pageSize : 10);
-        List<DormBuilding> buildings = dormBuildingMapper.selectByCondition(buildingName, isActive);
+        List<DormBuilding> buildings = dormBuildingMapper.selectByCondition(genderLimit, isActive);
         PageInfo<DormBuilding> pageInfo = new PageInfo<>(buildings);
         return new PageResult<>(pageInfo.getTotal(), buildings);
     }
@@ -51,6 +51,15 @@ public class DormBuildingService {
 
     public DormBuilding getBuilding(Integer buildingId) {
         return dormBuildingMapper.selectById(buildingId);
+    }
+
+    @Transactional
+    public void updateBuildingStatus(Integer buildingId, Integer isActive) {
+        DormBuilding existing = dormBuildingMapper.selectById(buildingId);
+        if (existing == null) {
+            throw new BusinessException("宿舍楼不存在");
+        }
+        dormBuildingMapper.updateStatus(buildingId, isActive);
     }
 }
 

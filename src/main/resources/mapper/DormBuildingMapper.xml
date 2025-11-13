@@ -15,10 +15,11 @@
     </select>
 
     <select id="selectByCondition" resultMap="BaseResultMap">
-        SELECT * FROM t_dorm_building
+        SELECT *
+        FROM t_dorm_building
         <where>
-            <if test="buildingName != null and buildingName != ''">
-                AND building_name LIKE CONCAT('%', #{buildingName}, '%')
+            <if test="genderLimit != null">
+                AND gender_limit = #{genderLimit}
             </if>
             <if test="isActive != null">
                 AND is_active = #{isActive}
@@ -40,6 +41,12 @@
             <if test="managerId != null">manager_id = #{managerId},</if>
             <if test="isActive != null">is_active = #{isActive},</if>
         </set>
+        WHERE building_id = #{buildingId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_dorm_building
+        SET is_active = #{isActive}
         WHERE building_id = #{buildingId}
     </update>
 

@@ -12,10 +12,10 @@ import java.util.List;
 @Mapper
 public interface ForumPostMapper {
     ForumPost selectById(@Param("postId") Long postId);
+    java.util.Map<String, Object> selectDetailById(@Param("postId") Long postId);
     List<java.util.Map<String, Object>> selectByCondition(@Param("categoryId") Integer categoryId,
-                                      @Param("authorId") Long authorId,
-                                      @Param("postStatus") Integer postStatus,
-                                      @Param("title") String title);
+                                      @Param("searchKeyword") String searchKeyword,
+                                      @Param("isTop") Integer isTop);
     List<ForumPost> selectTopPosts(@Param("categoryId") Integer categoryId);
     int insert(ForumPost post);
     int update(ForumPost post);

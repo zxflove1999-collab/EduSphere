@@ -23,6 +23,19 @@
         ORDER BY category_id
     </select>
 
+    <select id="selectWithPostCount" resultType="map">
+        SELECT c.category_id,
+               c.category_name,
+               c.description,
+               c.is_active,
+               COUNT(p.post_id) AS post_count
+        FROM t_forum_category c
+        LEFT JOIN t_forum_post p ON c.category_id = p.category_id AND p.post_status = 1
+        WHERE c.is_active = 1
+        GROUP BY c.category_id, c.category_name, c.description, c.is_active
+        ORDER BY c.category_id
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="categoryId">
         INSERT INTO t_forum_category (category_name, description, is_active)
         VALUES (#{categoryName}, #{description}, #{isActive})

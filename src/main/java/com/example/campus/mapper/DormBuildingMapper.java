@@ -12,9 +12,11 @@ import java.util.List;
 @Mapper
 public interface DormBuildingMapper {
     DormBuilding selectById(@Param("buildingId") Integer buildingId);
-    List<DormBuilding> selectByCondition(@Param("buildingName") String buildingName, @Param("isActive") Integer isActive);
+    List<DormBuilding> selectByCondition(@Param("genderLimit") Integer genderLimit,
+                                         @Param("isActive") Integer isActive);
     int insert(DormBuilding building);
     int update(DormBuilding building);
+    int updateStatus(@Param("buildingId") Integer buildingId, @Param("isActive") Integer isActive);
     int deleteById(@Param("buildingId") Integer buildingId);
 }
 

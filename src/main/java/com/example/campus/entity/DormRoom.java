@@ -9,10 +9,13 @@ import lombok.Data;
 public class DormRoom {
     private Long roomId;
     private Integer buildingId;
+    private String buildingName;
     private String roomNumber;
     private String fullName;
     private Integer totalBeds;
     private Integer occupiedBeds;
     private Integer roomStatus; // 1:正常, 2:维修, 3:已满
+    private String roomType;
+    private Integer hasPrivateBathroom; // 1:有, 0:无
 }
 

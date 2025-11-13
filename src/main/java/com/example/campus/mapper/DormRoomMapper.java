@@ -12,11 +12,12 @@ import java.util.List;
 @Mapper
 public interface DormRoomMapper {
     DormRoom selectById(@Param("roomId") Long roomId);
-    List<DormRoom> selectByCondition(@Param("buildingId") Integer buildingId, 
+    List<DormRoom> selectByCondition(@Param("buildingId") Integer buildingId,
                                      @Param("roomNumber") String roomNumber,
-                                     @Param("roomStatus") Integer roomStatus);
+                                     @Param("occupancyStatus") Integer occupancyStatus);
     List<DormRoom> selectAvailableRooms(@Param("buildingId") Integer buildingId,
                                          @Param("genderLimit") Integer genderLimit);
+    List<java.util.Map<String, Object>> selectOccupantsByRoomIds(@Param("roomIds") List<Long> roomIds);
     int insert(DormRoom room);
     int update(DormRoom room);
     int updateStatus(@Param("roomId") Long roomId, @Param("roomStatus") Integer roomStatus);

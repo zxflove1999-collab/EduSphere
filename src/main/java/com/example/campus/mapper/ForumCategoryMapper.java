@@ -13,6 +13,7 @@ import java.util.List;
 public interface ForumCategoryMapper {
     ForumCategory selectById(@Param("categoryId") Integer categoryId);
     List<ForumCategory> selectAll(@Param("isActive") Integer isActive);
+    List<java.util.Map<String, Object>> selectWithPostCount();
     int insert(ForumCategory category);
     int update(ForumCategory category);
     int deleteById(@Param("categoryId") Integer categoryId);
