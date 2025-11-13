@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.ClassScheduleMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.ClassSchedule">
+        <id column="schedule_id" property="scheduleId"/>
+        <result column="class_id" property="classId"/>
+        <result column="location_text" property="locationText"/>
+        <result column="classroom_id" property="classroomId"/>
+        <result column="day_of_week" property="dayOfWeek"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="week_range" property="weekRange"/>
+    </resultMap>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT * FROM t_class_schedule WHERE class_id = #{classId} ORDER BY day_of_week, start_time
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT cs.*, c.course_name, u.full_name as teacher_name
+        FROM t_class_schedule cs
+        INNER JOIN t_class c ON cs.class_id = c.class_id
+        INNER JOIN t_student_class sc ON c.class_id = sc.class_id
+        INNER JOIN t_user u ON c.teacher_id = u.user_id
+        WHERE sc.student_id = #{studentId} AND sc.status = 1
+        <if test="semester != null and semester != ''">
+            AND c.semester = #{semester}
+        </if>
+        ORDER BY cs.day_of_week, cs.start_time
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="scheduleId">
+        INSERT INTO t_class_schedule (class_id, location_text, classroom_id, day_of_week, start_time, end_time, week_range)
+        VALUES (#{classId}, #{locationText}, #{classroomId}, #{dayOfWeek}, #{startTime}, #{endTime}, #{weekRange})
+    </insert>
+
+    <delete id="deleteByClassId">
+        DELETE FROM t_class_schedule WHERE class_id = #{classId}
+    </delete>
+
+    <delete id="deleteById">
+        DELETE FROM t_class_schedule WHERE schedule_id = #{scheduleId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.BookMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.Book">
+        <id column="book_id" property="bookId"/>
+        <result column="isbn" property="isbn"/>
+        <result column="title" property="title"/>
+        <result column="author" property="author"/>
+        <result column="publisher" property="publisher"/>
+        <result column="publication_year" property="publicationYear"/>
+        <result column="total_copies" property="totalCopies"/>
+        <result column="available_copies" property="availableCopies"/>
+        <result column="cover_url" property="coverUrl"/>
+        <result column="summary" property="summary"/>
+        <result column="uploader_id" property="uploaderId"/>
+        <result column="uploaded_at" property="uploadedAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_book WHERE book_id = #{bookId}
+    </select>
+
+    <select id="selectByIsbn" resultMap="BaseResultMap">
+        SELECT * FROM t_book WHERE isbn = #{isbn}
+    </select>
+
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT DISTINCT b.*
+        FROM t_book b
+        <if test="tagName != null and tagName != ''">
+            INNER JOIN t_book_tag bt ON b.book_id = bt.book_id
+            INNER JOIN t_tag t ON bt.tag_id = t.tag_id
+        </if>
+        <where>
+            <if test="title != null and title != ''">
+                AND b.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="author != null and author != ''">
+                AND b.author LIKE CONCAT('%', #{author}, '%')
+            </if>
+            <if test="tagName != null and tagName != ''">
+                AND t.tag_name = #{tagName}
+            </if>
+            <if test="isAdminView == null or isAdminView == false">
+                AND b.available_copies > 0
+            </if>
+        </where>
+        ORDER BY b.uploaded_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="bookId">
+        INSERT INTO t_book (isbn, title, author, publisher, publication_year, total_copies, available_copies, cover_url, summary, uploader_id, uploaded_at)
+        VALUES (#{isbn}, #{title}, #{author}, #{publisher}, #{publicationYear}, #{totalCopies}, #{availableCopies}, #{coverUrl}, #{summary}, #{uploaderId}, NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE t_book
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="publisher != null">publisher = #{publisher},</if>
+            <if test="publicationYear != null">publication_year = #{publicationYear},</if>
+            <if test="totalCopies != null">total_copies = #{totalCopies},</if>
+            <if test="availableCopies != null">available_copies = #{availableCopies},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="summary != null">summary = #{summary},</if>
+        </set>
+        WHERE book_id = #{bookId}
+    </update>
+
+    <update id="updateAvailableCopies">
+        UPDATE t_book SET available_copies = available_copies + #{delta} WHERE book_id = #{bookId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_book WHERE book_id = #{bookId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.DormSurveyMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.DormSurvey">
+        <id column="survey_id" property="surveyId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="wake_up_time" property="wakeUpTime"/>
+        <result column="sleep_time" property="sleepTime"/>
+        <result column="cleanliness_preference" property="cleanlinessPreference"/>
+        <result column="noise_tolerance" property="noiseTolerance"/>
+        <result column="submission_time" property="submissionTime"/>
+        <result column="matching_score" property="matchingScore"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_dorm_survey WHERE survey_id = #{surveyId}
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT * FROM t_dorm_survey WHERE student_id = #{studentId} ORDER BY submission_time DESC LIMIT 1
+    </select>
+
+    <select id="selectByMatchingScore" resultMap="BaseResultMap">
+        SELECT * FROM t_dorm_survey
+        WHERE matching_score &gt;= #{minScore}
+        ORDER BY matching_score DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="surveyId">
+        INSERT INTO t_dorm_survey (student_id, wake_up_time, sleep_time, cleanliness_preference, noise_tolerance, submission_time, matching_score)
+        VALUES (#{studentId}, #{wakeUpTime}, #{sleepTime}, #{cleanlinessPreference}, #{noiseTolerance}, #{submissionTime}, #{matchingScore})
+    </insert>
+
+    <update id="update">
+        UPDATE t_dorm_survey
+        <set>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="wakeUpTime != null">wake_up_time = #{wakeUpTime},</if>
+            <if test="sleepTime != null">sleep_time = #{sleepTime},</if>
+            <if test="cleanlinessPreference != null">cleanliness_preference = #{cleanlinessPreference},</if>
+            <if test="noiseTolerance != null">noise_tolerance = #{noiseTolerance},</if>
+            <if test="submissionTime != null">submission_time = #{submissionTime},</if>
+            <if test="matchingScore != null">matching_score = #{matchingScore},</if>
+        </set>
+        WHERE survey_id = #{surveyId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_dorm_survey WHERE survey_id = #{surveyId}
+    </delete>
+
+</mapper>
+

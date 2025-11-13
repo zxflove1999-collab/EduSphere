@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.ClassMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.Class">
+        <id column="class_id" property="classId"/>
+        <result column="course_id" property="courseId"/>
+        <result column="teacher_id" property="teacherId"/>
+        <result column="semester" property="semester"/>
+        <result column="max_capacity" property="maxCapacity"/>
+        <result column="current_enrollment" property="currentEnrollment"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_class WHERE class_id = #{classId}
+    </select>
+
+    <select id="selectByTeacherId" resultMap="BaseResultMap">
+        SELECT c.*, co.course_name, u.full_name as teacher_name
+        FROM t_class c
+        INNER JOIN t_course co ON c.course_id = co.course_id
+        INNER JOIN t_user u ON c.teacher_id = u.user_id
+        WHERE c.teacher_id = #{teacherId}
+        <if test="courseName != null and courseName != ''">
+            AND co.course_name LIKE CONCAT('%', #{courseName}, '%')
+        </if>
+        <if test="semester != null and semester != ''">
+            AND c.semester = #{semester}
+        </if>
+        <if test="status != null">
+            AND c.status = #{status}
+        </if>
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="selectAvailableClasses" resultMap="BaseResultMap">
+        SELECT c.*, co.course_code, co.course_name, co.credits, u.full_name as teacher_name
+        FROM t_class c
+        INNER JOIN t_course co ON c.course_id = co.course_id
+        INNER JOIN t_user u ON c.teacher_id = u.user_id
+        LEFT JOIN t_department d ON co.department_id = d.department_id
+        WHERE c.status = 2
+        <if test="courseName != null and courseName != ''">
+            AND co.course_name LIKE CONCAT('%', #{courseName}, '%')
+        </if>
+        <if test="teacherName != null and teacherName != ''">
+            AND u.full_name LIKE CONCAT('%', #{teacherName}, '%')
+        </if>
+        <if test="departmentId != null">
+            AND co.department_id = #{departmentId}
+        </if>
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="countByClassId" resultType="int">
+        SELECT COUNT(*) FROM t_student_class WHERE class_id = #{classId} AND status = 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="classId">
+        INSERT INTO t_class (course_id, teacher_id, semester, max_capacity, current_enrollment, status)
+        VALUES (#{courseId}, #{teacherId}, #{semester}, #{maxCapacity}, #{currentEnrollment}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE t_class
+        <set>
+            <if test="maxCapacity != null">max_capacity = #{maxCapacity},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE class_id = #{classId}
+    </update>
+
+    <update id="updateCurrentEnrollment">
+        UPDATE t_class SET current_enrollment = current_enrollment + #{delta}
+        WHERE class_id = #{classId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_class WHERE class_id = #{classId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.CourseMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.Course">
+        <id column="course_id" property="courseId"/>
+        <result column="course_code" property="courseCode"/>
+        <result column="course_name" property="courseName"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="credits" property="credits"/>
+        <result column="description" property="description"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_course WHERE course_id = #{courseId}
+    </select>
+
+    <select id="selectByCourseCode" resultMap="BaseResultMap">
+        SELECT * FROM t_course WHERE course_code = #{courseCode}
+    </select>
+
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT c.*, d.department_name 
+        FROM t_course c
+        LEFT JOIN t_department d ON c.department_id = d.department_id
+        <where>
+            <if test="courseName != null and courseName != ''">
+                AND c.course_name LIKE CONCAT('%', #{courseName}, '%')
+            </if>
+            <if test="courseCode != null and courseCode != ''">
+                AND c.course_code = #{courseCode}
+            </if>
+            <if test="departmentId != null">
+                AND c.department_id = #{departmentId}
+            </if>
+        </where>
+        ORDER BY c.created_at DESC
+    </select>
+
+    <select id="selectSimpleList" resultType="map">
+        SELECT course_id, course_name FROM t_course ORDER BY course_id
+    </select>
+
+    <select id="countByCourseId" resultType="int">
+        SELECT COUNT(*) FROM t_class WHERE course_id = #{courseId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="courseId">
+        INSERT INTO t_course (course_code, course_name, department_id, credits, description, created_by)
+        VALUES (#{courseCode}, #{courseName}, #{departmentId}, #{credits}, #{description}, #{createdBy})
+    </insert>
+
+    <update id="update">
+        UPDATE t_course
+        <set>
+            <if test="courseCode != null">course_code = #{courseCode},</if>
+            <if test="courseName != null">course_name = #{courseName},</if>
+            <if test="departmentId != null">department_id = #{departmentId},</if>
+            <if test="credits != null">credits = #{credits},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE course_id = #{courseId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_course WHERE course_id = #{courseId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.ResourceFolderMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.ResourceFolder">
+        <id column="folder_id" property="folderId"/>
+        <result column="class_id" property="classId"/>
+        <result column="folder_name" property="folderName"/>
+        <result column="parent_folder_id" property="parentFolderId"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_resource_folder WHERE folder_id = #{folderId}
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT * FROM t_resource_folder 
+        WHERE class_id = #{classId}
+        <if test="parentFolderId == null">
+            AND parent_folder_id IS NULL
+        </if>
+        <if test="parentFolderId != null">
+            AND parent_folder_id = #{parentFolderId}
+        </if>
+        ORDER BY created_at
+    </select>
+
+    <select id="countByParentFolderId" resultType="int">
+        SELECT COUNT(*) FROM t_resource_folder WHERE parent_folder_id = #{parentFolderId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="folderId">
+        INSERT INTO t_resource_folder (class_id, folder_name, parent_folder_id, created_by)
+        VALUES (#{classId}, #{folderName}, #{parentFolderId}, #{createdBy})
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM t_resource_folder WHERE folder_id = #{folderId}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.StudentClassMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.StudentClass">
+        <id column="id" property="id"/>
+        <result column="student_id" property="studentId"/>
+        <result column="class_id" property="classId"/>
+        <result column="selection_time" property="selectionTime"/>
+        <result column="status" property="status"/>
+        <result column="final_score" property="finalScore"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_student_class WHERE id = #{id}
+    </select>
+
+    <select id="selectByStudentAndClass" resultMap="BaseResultMap">
+        SELECT * FROM t_student_class 
+        WHERE student_id = #{studentId} AND class_id = #{classId}
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT sc.*, c.course_name, u.full_name as teacher_name, co.credits
+        FROM t_student_class sc
+        INNER JOIN t_class c ON sc.class_id = c.class_id
+        INNER JOIN t_course co ON c.course_id = co.course_id
+        INNER JOIN t_user u ON c.teacher_id = u.user_id
+        WHERE sc.student_id = #{studentId} AND sc.status = 1
+        <if test="semester != null and semester != ''">
+            AND c.semester = #{semester}
+        </if>
+        ORDER BY sc.selection_time DESC
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT sc.*, u.full_name, u.user_id, sp.student_id_number
+        FROM t_student_class sc
+        INNER JOIN t_user u ON sc.student_id = u.user_id
+        LEFT JOIN t_student_profile sp ON u.user_id = sp.user_id
+        WHERE sc.class_id = #{classId} AND sc.status = 1
+        ORDER BY sc.selection_time
+    </select>
+
+    <select id="selectStudentsByClassId" resultType="map">
+        SELECT sc.student_id, u.full_name, sp.student_id_number
+        FROM t_student_class sc
+        INNER JOIN t_user u ON sc.student_id = u.user_id
+        LEFT JOIN t_student_profile sp ON u.user_id = sp.user_id
+        WHERE sc.class_id = #{classId} AND sc.status = 1
+        ORDER BY sc.selection_time
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_student_class (student_id, class_id, selection_time, status)
+        VALUES (#{studentId}, #{classId}, NOW(), #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE t_student_class
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="finalScore != null">final_score = #{finalScore},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_student_class SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <update id="updateFinalScore">
+        UPDATE t_student_class SET final_score = #{finalScore} WHERE id = #{id}
+    </update>
+
+</mapper>
+

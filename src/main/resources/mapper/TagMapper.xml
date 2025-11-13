@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.TagMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.Tag">
+        <id column="tag_id" property="tagId"/>
+        <result column="tag_name" property="tagName"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_tag WHERE tag_id = #{tagId}
+    </select>
+
+    <select id="selectByTagName" resultMap="BaseResultMap">
+        SELECT * FROM t_tag WHERE tag_name = #{tagName}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM t_tag ORDER BY tag_id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="tagId">
+        INSERT INTO t_tag (tag_name, description)
+        VALUES (#{tagName}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE t_tag
+        <set>
+            <if test="tagName != null">tag_name = #{tagName},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE tag_id = #{tagId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_tag WHERE tag_id = #{tagId}
+    </delete>
+
+</mapper>
+

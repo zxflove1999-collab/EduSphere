@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.TeacherProfileMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.TeacherProfile">
+        <id column="user_id" property="userId"/>
+        <result column="teacher_id_number" property="teacherIdNumber"/>
+        <result column="gender" property="gender"/>
+        <result column="department" property="department"/>
+        <result column="title" property="title"/>
+        <result column="office_location" property="officeLocation"/>
+        <result column="research_area" property="researchArea"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT * FROM t_teacher_profile WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO t_teacher_profile (user_id, teacher_id_number, gender, department, title, office_location)
+        VALUES (#{userId}, #{teacherIdNumber}, #{gender}, #{department}, #{title}, #{officeLocation})
+    </insert>
+
+    <update id="update">
+        UPDATE t_teacher_profile
+        <set>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="department != null">department = #{department},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="officeLocation != null">office_location = #{officeLocation},</if>
+            <if test="researchArea != null">research_area = #{researchArea},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteByUserId">
+        DELETE FROM t_teacher_profile WHERE user_id = #{userId}
+    </delete>
+
+</mapper>
+

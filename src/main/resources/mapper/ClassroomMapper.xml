@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.ClassroomMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.Classroom">
+        <id column="room_id" property="roomId"/>
+        <result column="room_number" property="roomNumber"/>
+        <result column="building_id" property="buildingId"/>
+        <result column="full_name" property="fullName"/>
+        <result column="capacity" property="capacity"/>
+        <result column="room_type" property="roomType"/>
+        <result column="equipment" property="equipment"/>
+        <result column="is_available" property="isAvailable"/>
+        <result column="last_maintenance_date" property="lastMaintenanceDate"/>
+    </resultMap>
+
+    <resultMap id="WithBuildingResultMap" type="java.util.Map">
+        <id column="room_id" property="room_id"/>
+        <result column="full_name" property="full_name"/>
+        <result column="building_name" property="building_name"/>
+        <result column="capacity" property="capacity"/>
+        <result column="room_type" property="room_type"/>
+        <result column="equipment" property="equipment"/>
+        <result column="is_available" property="is_available"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_classroom WHERE room_id = #{roomId}
+    </select>
+
+    <select id="selectByCondition" resultType="map">
+        SELECT c.room_id, c.full_name, b.building_name, c.capacity, c.room_type, c.equipment, c.is_available
+        FROM t_classroom c
+        INNER JOIN t_building b ON c.building_id = b.building_id
+        <where>
+            <if test="buildingId != null">
+                AND c.building_id = #{buildingId}
+            </if>
+            <if test="roomNumber != null and roomNumber != ''">
+                AND c.room_number LIKE CONCAT('%', #{roomNumber}, '%')
+            </if>
+            <if test="isAvailable != null">
+                AND c.is_available = #{isAvailable}
+            </if>
+        </where>
+        ORDER BY c.room_id
+    </select>
+
+    <select id="selectAvailableRooms" resultType="map">
+        SELECT DISTINCT c.room_id, c.full_name, b.building_name, c.capacity, c.room_type, c.equipment
+        FROM t_classroom c
+        INNER JOIN t_building b ON c.building_id = b.building_id
+        WHERE c.is_available = 1
+        AND c.room_id NOT IN (
+            SELECT room_id FROM t_reservation_request
+            WHERE status = 2
+            AND (
+                (start_time &lt;= #{startTime} AND end_time &gt; #{startTime})
+                OR (start_time &lt; #{endTime} AND end_time &gt;= #{endTime})
+                OR (start_time &gt;= #{startTime} AND end_time &lt;= #{endTime})
+            )
+        )
+        <if test="buildingId != null">
+            AND c.building_id = #{buildingId}
+        </if>
+        <if test="capacityMin != null">
+            AND c.capacity &gt;= #{capacityMin}
+        </if>
+        <if test="equipmentRequired != null and equipmentRequired != ''">
+            AND c.equipment LIKE CONCAT('%', #{equipmentRequired}, '%')
+        </if>
+        ORDER BY c.room_id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="roomId">
+        INSERT INTO t_classroom (room_number, building_id, full_name, capacity, room_type, equipment, is_available, last_maintenance_date)
+        VALUES (#{roomNumber}, #{buildingId}, #{fullName}, #{capacity}, #{roomType}, #{equipment}, #{isAvailable}, #{lastMaintenanceDate})
+    </insert>
+
+    <update id="update">
+        UPDATE t_classroom
+        <set>
+            <if test="roomNumber != null">room_number = #{roomNumber},</if>
+            <if test="buildingId != null">building_id = #{buildingId},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="capacity != null">capacity = #{capacity},</if>
+            <if test="roomType != null">room_type = #{roomType},</if>
+            <if test="equipment != null">equipment = #{equipment},</if>
+            <if test="isAvailable != null">is_available = #{isAvailable},</if>
+            <if test="lastMaintenanceDate != null">last_maintenance_date = #{lastMaintenanceDate},</if>
+        </set>
+        WHERE room_id = #{roomId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_classroom SET is_available = #{isAvailable} WHERE room_id = #{roomId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_classroom WHERE room_id = #{roomId}
+    </delete>
+
+</mapper>
+

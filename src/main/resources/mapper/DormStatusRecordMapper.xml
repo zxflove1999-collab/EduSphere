@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.DormStatusRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.DormStatusRecord">
+        <id column="record_id" property="recordId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="status_type" property="statusType"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="reason" property="reason"/>
+        <result column="operator_id" property="operatorId"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_dorm_status_record WHERE record_id = #{recordId}
+    </select>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT * FROM t_dorm_status_record
+        WHERE student_id = #{studentId}
+        <if test="statusType != null">
+            AND status_type = #{statusType}
+        </if>
+        ORDER BY start_time DESC
+    </select>
+
+    <select id="selectByTimeRange" resultMap="BaseResultMap">
+        SELECT * FROM t_dorm_status_record
+        WHERE start_time &gt;= #{startTime}
+        <if test="endTime != null">
+            AND start_time &lt;= #{endTime}
+        </if>
+        ORDER BY start_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO t_dorm_status_record (student_id, status_type, start_time, end_time, reason, operator_id)
+        VALUES (#{studentId}, #{statusType}, #{startTime}, #{endTime}, #{reason}, #{operatorId})
+    </insert>
+
+    <update id="update">
+        UPDATE t_dorm_status_record
+        <set>
+            <if test="studentId != null">student_id = #{studentId},</if>
+            <if test="statusType != null">status_type = #{statusType},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="reason != null">reason = #{reason},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+        </set>
+        WHERE record_id = #{recordId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_dorm_status_record WHERE record_id = #{recordId}
+    </delete>
+
+</mapper>
+

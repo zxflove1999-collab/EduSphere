@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.AttendanceSessionMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.AttendanceSession">
+        <id column="session_id" property="sessionId"/>
+        <result column="class_id" property="classId"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="session_type" property="sessionType"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="required_latitude" property="requiredLatitude"/>
+        <result column="required_longitude" property="requiredLongitude"/>
+        <result column="required_radius" property="requiredRadius"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_attendance_session WHERE session_id = #{sessionId}
+    </select>
+
+    <select id="selectActiveByClassId" resultMap="BaseResultMap">
+        SELECT * FROM t_attendance_session 
+        WHERE class_id = #{classId} AND status = 1 
+        AND NOW() BETWEEN start_time AND end_time
+        ORDER BY start_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectByClassId" resultMap="BaseResultMap">
+        SELECT s.*,
+               (SELECT COUNT(*) FROM t_attendance_record WHERE session_id = s.session_id AND status = 1) as attendance_count,
+               (SELECT COUNT(*) FROM t_student_class WHERE class_id = s.class_id AND status = 1) as total_students
+        FROM t_attendance_session s
+        WHERE s.class_id = #{classId}
+        ORDER BY s.start_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="sessionId">
+        INSERT INTO t_attendance_session (class_id, created_by, session_type, start_time, end_time, 
+                                         required_latitude, required_longitude, required_radius, status)
+        VALUES (#{classId}, #{createdBy}, #{sessionType}, #{startTime}, #{endTime}, 
+                #{requiredLatitude}, #{requiredLongitude}, #{requiredRadius}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE t_attendance_session
+        <set>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE session_id = #{sessionId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_attendance_session SET status = #{status} WHERE session_id = #{sessionId}
+    </update>
+
+</mapper>
+

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.SubmissionAnalysisMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.SubmissionAnalysis">
+        <id column="analysis_id" property="analysisId"/>
+        <result column="submission_id" property="submissionId"/>
+        <result column="student_ac_report" property="studentAcReport"/>
+        <result column="analysis_status" property="analysisStatus"/>
+        <result column="generated_at" property="generatedAt"/>
+    </resultMap>
+
+    <select id="selectBySubmissionId" resultMap="BaseResultMap">
+        SELECT * FROM t_submission_analysis WHERE submission_id = #{submissionId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="analysisId">
+        INSERT INTO t_submission_analysis (submission_id, student_ac_report, analysis_status, generated_at)
+        VALUES (#{submissionId}, #{studentAcReport}, #{analysisStatus}, #{generatedAt})
+    </insert>
+
+    <update id="update">
+        UPDATE t_submission_analysis
+        <set>
+            <if test="studentAcReport != null">student_ac_report = #{studentAcReport},</if>
+            <if test="analysisStatus != null">analysis_status = #{analysisStatus},</if>
+            <if test="generatedAt != null">generated_at = #{generatedAt},</if>
+        </set>
+        WHERE analysis_id = #{analysisId}
+    </update>
+
+</mapper>
+
