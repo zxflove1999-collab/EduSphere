@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +27,16 @@ public class AuthService {
     private final UserMapper userMapper;
     private final UserRoleMapper userRoleMapper;
     private final JwtUtil jwtUtil;
+
     private final AuthenticationManager authenticationManager; // 添加这个
+
 
     /**
      * 用户登录
      */
     @Transactional
     public LoginResponse login(LoginRequest request) {
+
         try {
             // 使用Spring Security进行认证（这会验证密码）
             Authentication authentication = authenticationManager.authenticate(
@@ -49,6 +53,7 @@ public class AuthService {
         User user = userMapper.selectByUsername(request.getUsername());
         if (user == null) {
             throw new BusinessException("用户不存在");
+
         }
 
         // 检查账号状态
@@ -77,3 +82,4 @@ public class AuthService {
         return response;
     }
 }
+

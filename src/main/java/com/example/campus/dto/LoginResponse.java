@@ -14,6 +14,7 @@ public class LoginResponse {
     private String token;
     private List<String> roles;
 
+
     // 添加无参构造方法（Lombok会自动生成，但明确写出更清晰）
     public LoginResponse() {}
 
@@ -26,3 +27,4 @@ public class LoginResponse {
         this.roles = roles;
     }
 }
+
