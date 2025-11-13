@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.campus.mapper.DormPreferenceMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.campus.entity.DormPreference">
+        <id column="preference_id" property="preferenceId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="wake_up_time" property="wakeUpTime"/>
+        <result column="bedtime" property="bedtime"/>
+        <result column="study_habit_preference" property="studyHabitPreference"/>
+        <result column="hygiene_preference" property="hygienePreference"/>
+        <result column="noise_tolerance" property="noiseTolerance"/>
+        <result column="self_introduction" property="selfIntroduction"/>
+        <result column="submission_time" property="submissionTime"/>
+        <result column="matching_score" property="matchingScore"/>
+    </resultMap>
+
+    <select id="selectByStudentId" resultMap="BaseResultMap">
+        SELECT *
+        FROM t_dorm_preference
+        WHERE student_id = #{studentId}
+        ORDER BY submission_time DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="preferenceId">
+        INSERT INTO t_dorm_preference (student_id, wake_up_time, bedtime, study_habit_preference,
+                                       hygiene_preference, noise_tolerance, self_introduction,
+                                       submission_time, matching_score)
+        VALUES (#{studentId}, #{wakeUpTime}, #{bedtime}, #{studyHabitPreference},
+                #{hygienePreference}, #{noiseTolerance}, #{selfIntroduction},
+                #{submissionTime}, #{matchingScore})
+    </insert>
+
+    <update id="update">
+        UPDATE t_dorm_preference
+        <set>
+            <if test="wakeUpTime != null">wake_up_time = #{wakeUpTime},</if>
+            <if test="bedtime != null">bedtime = #{bedtime},</if>
+            <if test="studyHabitPreference != null">study_habit_preference = #{studyHabitPreference},</if>
+            <if test="hygienePreference != null">hygiene_preference = #{hygienePreference},</if>
+            <if test="noiseTolerance != null">noise_tolerance = #{noiseTolerance},</if>
+            <if test="selfIntroduction != null">self_introduction = #{selfIntroduction},</if>
+            <if test="submissionTime != null">submission_time = #{submissionTime},</if>
+            <if test="matchingScore != null">matching_score = #{matchingScore},</if>
+        </set>
+        WHERE preference_id = #{preferenceId}
+    </update>
+
+</mapper>
+
