@@ -13,6 +13,7 @@ import java.util.List;
 public interface BookPreferenceMapper {
     BookPreference selectById(@Param("id") Long id);
     List<BookPreference> selectByUserId(@Param("userId") Long userId);
+    List<BookPreference> selectTopRecommendations(@Param("limit") int limit);
     int insert(BookPreference preference);
     int update(BookPreference preference);
     int deleteById(@Param("id") Long id);

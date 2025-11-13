@@ -6,6 +6,7 @@ import com.example.campus.mapper.BookPolicyMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -22,6 +23,25 @@ public class BookPolicyService {
      */
     @Transactional
     public void saveBookPolicy(BookPolicy policy) {
+        if (policy == null) {
+            throw new BusinessException("请求体不能为空");
+        }
+        if (!StringUtils.hasText(policy.getPolicyName())) {
+            throw new BusinessException("policy_name为必填项");
+        }
+        if (policy.getUserTypeScope() == null) {
+            throw new BusinessException("user_type_scope为必填项");
+        }
+        if (policy.getMaxDurationDays() == null || policy.getMaxDurationDays() <= 0) {
+            throw new BusinessException("max_duration_days必须为正整数");
+        }
+        if (policy.getMaxBorrowCount() == null || policy.getMaxBorrowCount() <= 0) {
+            throw new BusinessException("max_borrow_count必须为正整数");
+        }
+        if (policy.getAllowRenewalCount() != null && policy.getAllowRenewalCount() < 0) {
+            throw new BusinessException("allow_renewal_count不能为负数");
+        }
+        policy.setPolicyName(policy.getPolicyName().trim());
         if (policy.getPolicyId() != null) {
             // 修改
             BookPolicy existing = bookPolicyMapper.selectById(policy.getPolicyId());

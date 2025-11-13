@@ -111,7 +111,11 @@ public class BorrowService {
      * 接收推送偏好书籍
      */
     public List<BookPreference> getBookRecommendations(Long userId) {
-        return bookPreferenceMapper.selectByUserId(userId);
+        List<BookPreference> preferences = bookPreferenceMapper.selectByUserId(userId);
+        if (preferences == null || preferences.isEmpty()) {
+            preferences = bookPreferenceMapper.selectTopRecommendations(10);
+        }
+        return preferences;
     }
 }
 

@@ -16,10 +16,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -144,9 +146,25 @@ public class StudentService {
      */
     @Transactional
     public void deleteStudents(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            throw new BusinessException("学生ID不能为空");
+        }
+        List<User> existingUsers = userMapper.selectByIds(userIds);
+        Set<Long> existingIds = existingUsers.stream()
+                .map(User::getUserId)
+                .collect(Collectors.toSet());
+        List<Long> missing = userIds.stream()
+                .filter(id -> !existingIds.contains(id))
+                .collect(Collectors.toList());
+        if (!missing.isEmpty()) {
+            throw new BusinessException("部分学生不存在");
+        }
         for (Long userId : userIds) {
-            userMapper.deleteById(userId);
-            // 级联删除会自动处理关联数据
+            try {
+                userMapper.deleteById(userId);
+            } catch (DataIntegrityViolationException ex) {
+                throw new BusinessException("学生存在关联数据，无法删除");
+            }
         }
     }
 }

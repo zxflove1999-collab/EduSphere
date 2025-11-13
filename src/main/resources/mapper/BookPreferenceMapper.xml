@@ -23,6 +23,14 @@
         ORDER BY bp.score DESC, bp.generated_at DESC
     </select>
 
+    <select id="selectTopRecommendations" resultMap="BaseResultMap">
+        SELECT bp.*, b.title, b.author, b.cover_url
+        FROM t_book_preference bp
+        INNER JOIN t_book b ON bp.recommended_book_id = b.book_id
+        ORDER BY bp.score DESC, bp.generated_at DESC
+        LIMIT #{limit}
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO t_book_preference (user_id, recommended_book_id, reason, score, generated_at)
         VALUES (#{userId}, #{recommendedBookId}, #{reason}, #{score}, NOW())

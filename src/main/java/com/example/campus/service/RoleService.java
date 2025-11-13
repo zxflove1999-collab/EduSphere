@@ -9,6 +9,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -61,9 +62,29 @@ public class RoleService {
      */
     @Transactional
     public void updateRole(Role role) {
+        if (role.getRoleId() == null) {
+            throw new BusinessException("role_id为必填项");
+        }
+        if (role.getRoleName() == null) {
+            throw new BusinessException("角色名称为必填项");
+        }
+        if (!StringUtils.hasText(role.getRoleName())) {
+            throw new BusinessException("角色名称不能为空");
+        }
+        if (role.getRoleKey() == null) {
+            throw new BusinessException("角色标识为必填项");
+        }
+        if (!StringUtils.hasText(role.getRoleKey())) {
+            throw new BusinessException("角色标识不能为空");
+        }
+        role.setRoleName(role.getRoleName().trim());
+        role.setRoleKey(role.getRoleKey().trim());
         Role existing = roleMapper.selectById(role.getRoleId());
         if (existing == null) {
             throw new BusinessException("角色不存在");
+        }
+        if (existing.getIsSystem() != null && existing.getIsSystem() == 1) {
+            throw new BusinessException("系统内置角色不允许修改");
         }
         // 检查role_key是否与其他角色冲突
         Role byKey = roleMapper.selectByRoleKey(role.getRoleKey());

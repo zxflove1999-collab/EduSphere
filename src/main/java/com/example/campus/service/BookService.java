@@ -13,6 +13,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -83,13 +84,17 @@ public class BookService {
         if (book == null) {
             throw new BusinessException("书籍不存在");
         }
+        if (!StringUtils.hasText(tagName)) {
+            throw new BusinessException("标签名称不能为空");
+        }
+        String trimmedTagName = tagName.trim();
         
         // 检查标签是否存在
-        Tag tag = tagMapper.selectByTagName(tagName);
+        Tag tag = tagMapper.selectByTagName(trimmedTagName);
         if (tag == null) {
             // 创建新标签
             tag = new Tag();
-            tag.setTagName(tagName);
+            tag.setTagName(trimmedTagName);
             tagMapper.insert(tag);
         }
         
