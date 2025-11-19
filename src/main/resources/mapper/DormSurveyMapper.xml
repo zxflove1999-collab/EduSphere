@@ -9,6 +9,24 @@
         <result column="sleep_time" property="sleepTime"/>
         <result column="cleanliness_preference" property="cleanlinessPreference"/>
         <result column="noise_tolerance" property="noiseTolerance"/>
+        <result column="sleep_time_pref" property="sleepTimePref"/>
+        <result column="wake_time_pref" property="wakeTimePref"/>
+        <result column="nap_habit" property="napHabit"/>
+        <result column="smoking_status" property="smokingStatus"/>
+        <result column="roommate_smoke_accept" property="roommateSmokeAccept"/>
+        <result column="gaming_freq" property="gamingFreq"/>
+        <result column="headphone_usage" property="headphoneUsage"/>
+        <result column="chatting_pref" property="chattingPref"/>
+        <result column="guest_acceptance" property="guestAcceptance"/>
+        <result column="group_activity_willingness" property="groupActivityWillingness"/>
+        <result column="hygiene_requirement" property="hygieneRequirement"/>
+        <result column="organization_level" property="organizationLevel"/>
+        <result column="roommate_hygiene_tolerance" property="roommateHygieneTolerance"/>
+        <result column="quiet_study_need" property="quietStudyNeed"/>
+        <result column="noise_tolerance_level" property="noiseToleranceLevel"/>
+        <result column="dorm_food_freq" property="dormFoodFreq"/>
+        <result column="fragrance_usage" property="fragranceUsage"/>
+        <result column="smell_sensitivity" property="smellSensitivity"/>
         <result column="submission_time" property="submissionTime"/>
         <result column="matching_score" property="matchingScore"/>
     </resultMap>
@@ -28,8 +46,60 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="surveyId">
-        INSERT INTO t_dorm_survey (student_id, wake_up_time, sleep_time, cleanliness_preference, noise_tolerance, submission_time, matching_score)
-        VALUES (#{studentId}, #{wakeUpTime}, #{sleepTime}, #{cleanlinessPreference}, #{noiseTolerance}, #{submissionTime}, #{matchingScore})
+        INSERT INTO t_dorm_survey (
+            student_id,
+            wake_up_time,
+            sleep_time,
+            cleanliness_preference,
+            noise_tolerance,
+            sleep_time_pref,
+            wake_time_pref,
+            nap_habit,
+            smoking_status,
+            roommate_smoke_accept,
+            gaming_freq,
+            headphone_usage,
+            chatting_pref,
+            guest_acceptance,
+            group_activity_willingness,
+            hygiene_requirement,
+            organization_level,
+            roommate_hygiene_tolerance,
+            quiet_study_need,
+            noise_tolerance_level,
+            dorm_food_freq,
+            fragrance_usage,
+            smell_sensitivity,
+            submission_time,
+            matching_score
+        )
+        VALUES (
+            #{studentId},
+            #{wakeUpTime},
+            #{sleepTime},
+            #{cleanlinessPreference},
+            #{noiseTolerance},
+            #{sleepTimePref},
+            #{wakeTimePref},
+            #{napHabit},
+            #{smokingStatus},
+            #{roommateSmokeAccept},
+            #{gamingFreq},
+            #{headphoneUsage},
+            #{chattingPref},
+            #{guestAcceptance},
+            #{groupActivityWillingness},
+            #{hygieneRequirement},
+            #{organizationLevel},
+            #{roommateHygieneTolerance},
+            #{quietStudyNeed},
+            #{noiseToleranceLevel},
+            #{dormFoodFreq},
+            #{fragranceUsage},
+            #{smellSensitivity},
+            #{submissionTime},
+            #{matchingScore}
+        )
     </insert>
 
     <update id="update">
@@ -40,6 +110,24 @@
             <if test="sleepTime != null">sleep_time = #{sleepTime},</if>
             <if test="cleanlinessPreference != null">cleanliness_preference = #{cleanlinessPreference},</if>
             <if test="noiseTolerance != null">noise_tolerance = #{noiseTolerance},</if>
+            <if test="sleepTimePref != null">sleep_time_pref = #{sleepTimePref},</if>
+            <if test="wakeTimePref != null">wake_time_pref = #{wakeTimePref},</if>
+            <if test="napHabit != null">nap_habit = #{napHabit},</if>
+            <if test="smokingStatus != null">smoking_status = #{smokingStatus},</if>
+            <if test="roommateSmokeAccept != null">roommate_smoke_accept = #{roommateSmokeAccept},</if>
+            <if test="gamingFreq != null">gaming_freq = #{gamingFreq},</if>
+            <if test="headphoneUsage != null">headphone_usage = #{headphoneUsage},</if>
+            <if test="chattingPref != null">chatting_pref = #{chattingPref},</if>
+            <if test="guestAcceptance != null">guest_acceptance = #{guestAcceptance},</if>
+            <if test="groupActivityWillingness != null">group_activity_willingness = #{groupActivityWillingness},</if>
+            <if test="hygieneRequirement != null">hygiene_requirement = #{hygieneRequirement},</if>
+            <if test="organizationLevel != null">organization_level = #{organizationLevel},</if>
+            <if test="roommateHygieneTolerance != null">roommate_hygiene_tolerance = #{roommateHygieneTolerance},</if>
+            <if test="quietStudyNeed != null">quiet_study_need = #{quietStudyNeed},</if>
+            <if test="noiseToleranceLevel != null">noise_tolerance_level = #{noiseToleranceLevel},</if>
+            <if test="dormFoodFreq != null">dorm_food_freq = #{dormFoodFreq},</if>
+            <if test="fragranceUsage != null">fragrance_usage = #{fragranceUsage},</if>
+            <if test="smellSensitivity != null">smell_sensitivity = #{smellSensitivity},</if>
             <if test="submissionTime != null">submission_time = #{submissionTime},</if>
             <if test="matchingScore != null">matching_score = #{matchingScore},</if>
         </set>
