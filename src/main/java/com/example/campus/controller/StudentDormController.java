@@ -2,10 +2,13 @@ package com.example.campus.controller;
 
 import com.example.campus.common.Result;
 import com.example.campus.dto.DormPreferenceRequest;
+import com.example.campus.dto.DormSurveyRequest;
 import com.example.campus.entity.DormBed;
 import com.example.campus.entity.DormPreference;
+import com.example.campus.entity.DormSurvey;
 import com.example.campus.service.DormBedService;
 import com.example.campus.service.DormPreferenceService;
+import com.example.campus.service.DormSurveyService;
 import com.example.campus.service.DormRoomService;
 import com.example.campus.util.JwtUtil;
 import com.example.campus.vo.DormOccupantVO;
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StudentDormController {
     private final DormPreferenceService dormPreferenceService;
+    private final DormSurveyService dormSurveyService;
     private final DormBedService dormBedService;
     private final DormRoomService dormRoomService;
     private final JwtUtil jwtUtil;
@@ -38,6 +42,27 @@ public class StudentDormController {
         Long studentId = jwtUtil.getUserIdFromToken(token);
         dormPreferenceService.submitPreference(studentId, request);
         return Result.success();
+    }
+
+    /**
+     * 提交宿舍问卷 (t_dorm_survey)
+     */
+    @PostMapping("/dorm/survey")
+    public Result<Void> submitDormSurvey(@RequestBody DormSurveyRequest request,
+                                         @RequestHeader("token") String token) {
+        Long studentId = jwtUtil.getUserIdFromToken(token);
+        dormSurveyService.submitSurvey(studentId, request);
+        return Result.success();
+    }
+
+    /**
+     * 查询本人最新的宿舍问卷
+     */
+    @GetMapping("/dorm/survey")
+    public Result<DormSurvey> getDormSurvey(@RequestHeader("token") String token) {
+        Long studentId = jwtUtil.getUserIdFromToken(token);
+        DormSurvey survey = dormSurveyService.getSurveyByStudent(studentId);
+        return Result.success(survey);
     }
 
     /**
