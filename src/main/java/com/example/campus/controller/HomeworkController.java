@@ -122,6 +122,13 @@ public class HomeworkController {
         return Result.success(result);
     }
 
+    // 添加生成建议
+    @PostMapping("/homeworks/{homework_id}/generate-suggestions")
+    public Result<Void> generateTeachingSuggestions(@PathVariable("homework_id") Long homeworkId) {
+        homeworkService.generateTeachingSuggestions(homeworkId);
+        return Result.success();
+    }
+
     @Data
     public static class HomeworkCreateRequest {
         private String title;
