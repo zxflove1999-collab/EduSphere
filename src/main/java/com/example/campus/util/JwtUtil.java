@@ -48,6 +48,9 @@ public class JwtUtil {
      * 从令牌中获取Claims
      */
     public Claims getClaimsFromToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token cannot be null or empty");
+        }
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -56,28 +59,49 @@ public class JwtUtil {
     }
 
     /**
-     * 从令牌中获取用户ID
+     * 从令牌中获取用户ID（如果token为null则返回null）
      */
     public Long getUserIdFromToken(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims.get("id", Long.class);
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return claims.get("id", Long.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
-     * 从令牌中获取用户名
+     * 从令牌中获取用户名（如果token为null则返回null）
      */
     public String getUsernameFromToken(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims.get("username", String.class);
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return claims.get("username", String.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
-     * 从令牌中获取角色列表
+     * 从令牌中获取角色列表（如果token为null则返回null）
      */
     @SuppressWarnings("unchecked")
     public List<String> getRolesFromToken(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims.get("roles", List.class);
+        if (token == null || token.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            Claims claims = getClaimsFromToken(token);
+            return claims.get("roles", List.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

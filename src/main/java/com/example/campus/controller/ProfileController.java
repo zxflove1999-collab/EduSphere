@@ -23,8 +23,14 @@ public class ProfileController {
      * 获取当前登录用户信息
      */
     @GetMapping
-    public Result<UserProfileVO> getProfile(@RequestHeader("token") String token) {
+    public Result<UserProfileVO> getProfile(@RequestHeader(value = "token", required = false) String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return Result.error("缺少token，请先登录");
+        }
         Long userId = jwtUtil.getUserIdFromToken(token);
+        if (userId == null) {
+            return Result.error("token无效，请重新登录");
+        }
         UserProfileVO profile = profileService.getProfile(userId);
         return Result.success(profile);
     }
@@ -33,9 +39,15 @@ public class ProfileController {
      * 修改当前用户信息
      */
     @PutMapping
-    public Result<?> updateProfile(@RequestHeader("token") String token,
+    public Result<?> updateProfile(@RequestHeader(value = "token", required = false) String token,
                                    @RequestBody ProfileUpdateRequest request) {
+        if (token == null || token.trim().isEmpty()) {
+            return Result.error("缺少token，请先登录");
+        }
         Long userId = jwtUtil.getUserIdFromToken(token);
+        if (userId == null) {
+            return Result.error("token无效，请重新登录");
+        }
         profileService.updateProfile(userId, request);
         return Result.success();
     }
@@ -44,9 +56,15 @@ public class ProfileController {
      * 修改当前用户密码
      */
     @PutMapping("/password")
-    public Result<?> changePassword(@RequestHeader("token") String token,
+    public Result<?> changePassword(@RequestHeader(value = "token", required = false) String token,
                                     @RequestBody PasswordChangeRequest request) {
+        if (token == null || token.trim().isEmpty()) {
+            return Result.error("缺少token，请先登录");
+        }
         Long userId = jwtUtil.getUserIdFromToken(token);
+        if (userId == null) {
+            return Result.error("token无效，请重新登录");
+        }
         profileService.changePassword(userId, request);
         return Result.success();
     }

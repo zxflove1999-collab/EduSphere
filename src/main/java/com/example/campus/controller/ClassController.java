@@ -35,7 +35,14 @@ public class ClassController {
             @RequestParam(required = false) String semester,
             @RequestParam(required = false) Integer status,
             HttpServletRequest request) {
-        Long teacherId = jwtUtil.getUserIdFromToken(request.getHeader("token"));
+        String token = request.getHeader("token");
+        if (token == null || token.trim().isEmpty()) {
+            return Result.error("缺少token，请先登录");
+        }
+        Long teacherId = jwtUtil.getUserIdFromToken(token);
+        if (teacherId == null) {
+            return Result.error("token无效，请重新登录");
+        }
         PageResult<Class> result = classService.listClassesByTeacher(teacherId, page, pageSize, course_name, semester, status);
         return Result.success(result);
     }
@@ -45,7 +52,14 @@ public class ClassController {
      */
     @PostMapping
     public Result<Void> createClass(@RequestBody ClassCreateRequest request, HttpServletRequest httpRequest) {
-        Long teacherId = jwtUtil.getUserIdFromToken(httpRequest.getHeader("token"));
+        String token = httpRequest.getHeader("token");
+        if (token == null || token.trim().isEmpty()) {
+            return Result.error("缺少token，请先登录");
+        }
+        Long teacherId = jwtUtil.getUserIdFromToken(token);
+        if (teacherId == null) {
+            return Result.error("token无效，请重新登录");
+        }
         classService.createClass(request.getClazz(), request.getSchedules(), teacherId);
         return Result.success();
     }

@@ -42,31 +42,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
-                        // 公开接口
-                        .requestMatchers("/login").permitAll()
-
-                        // 学生接口
-                        .requestMatchers("/student/**").hasAuthority("student")
-
-                        // 老师接口
-                        .requestMatchers("/teacher/**").hasAuthority("teacher")
-
-                        // 管理员接口
-                        .requestMatchers("/admin/**").hasAuthority("super_admin")
-                        .requestMatchers("/api/admin/**").hasAuthority("super_admin")
-
-                        // 其他所有请求 - 允许所有已认证用户
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
-
-        // 添加JWT过滤器
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
