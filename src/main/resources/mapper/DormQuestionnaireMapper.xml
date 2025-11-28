@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.campus.mapper.DormQuestionnaireMapper">
+
+    <!-- 插入一条问卷记录 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dorm_questionnaire
+        (
+            student_id,
+            q1_sleep_time, q2_wake_time, q3_nap,
+            q4_smoke, q5_mind_smoke, q6_game, q7_headphone,
+            q8_chat, q9_friend_visit, q10_activity,
+            q11_clean_demand, q12_tidy, q13_mind_dirty,
+            q14_quiet_study, q15_noise_tolerance,
+            q16_eat_in_dorm, q17_perfume, q18_mind_smell,
+            extra_note
+        )
+        VALUES
+        (
+            #{studentId},
+            #{q1SleepTime}, #{q2WakeTime}, #{q3Nap},
+            #{q4Smoke}, #{q5MindSmoke}, #{q6Game}, #{q7Headphone},
+            #{q8Chat}, #{q9FriendVisit}, #{q10Activity},
+            #{q11CleanDemand}, #{q12Tidy}, #{q13MindDirty},
+            #{q14QuietStudy}, #{q15NoiseTolerance},
+            #{q16EatInDorm}, #{q17Perfume}, #{q18MindSmell},
+            #{extraNote}
+        )
+    </insert>
+
+    <!-- 查询某学生最近提交的问卷 -->
+    <select id="selectByStudentId" resultType="com.example.campus.entity.DormQuestionnaire">
+        SELECT *
+        FROM dorm_questionnaire
+        WHERE student_id = #{studentId}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,12 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?> 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.campus.mapper.DormPreferenceMapper">
 
     <resultMap id="BaseResultMap" type="com.example.campus.entity.DormPreference">
         <id column="preference_id" property="preferenceId"/>
         <result column="student_id" property="studentId"/>
-        <result column="wake_up_time" property="wakeUpTime"/>
-        <result column="bedtime" property="bedtime"/>
+
+        <!-- ⭐ 添加 LocalTime 类型处理器 -->
+        <result column="wake_up_time" property="wakeUpTime"
+                typeHandler="com.example.campus.config.LocalTimeTypeHandler"/>
+        <result column="bedtime" property="bedtime"
+                typeHandler="com.example.campus.config.LocalTimeTypeHandler"/>
+
         <result column="study_habit_preference" property="studyHabitPreference"/>
         <result column="hygiene_preference" property="hygienePreference"/>
         <result column="noise_tolerance" property="noiseTolerance"/>
@@ -24,19 +29,29 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="preferenceId">
-        INSERT INTO t_dorm_preference (student_id, wake_up_time, bedtime, study_habit_preference,
-                                       hygiene_preference, noise_tolerance, self_introduction,
-                                       submission_time, matching_score)
-        VALUES (#{studentId}, #{wakeUpTime}, #{bedtime}, #{studyHabitPreference},
-                #{hygienePreference}, #{noiseTolerance}, #{selfIntroduction},
-                #{submissionTime}, #{matchingScore})
+        INSERT INTO t_dorm_preference (
+            student_id, wake_up_time, bedtime, study_habit_preference,
+            hygiene_preference, noise_tolerance, self_introduction,
+            submission_time, matching_score
+        )
+        VALUES (
+            #{studentId},
+            #{wakeUpTime, typeHandler=com.example.campus.config.LocalTimeTypeHandler},
+            #{bedtime, typeHandler=com.example.campus.config.LocalTimeTypeHandler},
+            #{studyHabitPreference}, #{hygienePreference}, #{noiseTolerance},
+            #{selfIntroduction}, #{submissionTime}, #{matchingScore}
+        )
     </insert>
 
     <update id="update">
         UPDATE t_dorm_preference
         <set>
-            <if test="wakeUpTime != null">wake_up_time = #{wakeUpTime},</if>
-            <if test="bedtime != null">bedtime = #{bedtime},</if>
+            <if test="wakeUpTime != null">
+                wake_up_time = #{wakeUpTime, typeHandler=com.example.campus.config.LocalTimeTypeHandler},
+            </if>
+            <if test="bedtime != null">
+                bedtime = #{bedtime, typeHandler=com.example.campus.config.LocalTimeTypeHandler},
+            </if>
             <if test="studyHabitPreference != null">study_habit_preference = #{studyHabitPreference},</if>
             <if test="hygienePreference != null">hygiene_preference = #{hygienePreference},</if>
             <if test="noiseTolerance != null">noise_tolerance = #{noiseTolerance},</if>
@@ -47,5 +62,11 @@
         WHERE preference_id = #{preferenceId}
     </update>
 
-</mapper>
+    <!-- Load all preference records for automatic dorm allocation -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT *
+        FROM t_dorm_preference
+        ORDER BY submission_time DESC
+    </select>
 
+</mapper>
