@@ -5,6 +5,7 @@ import com.example.campus.util.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -44,6 +45,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // 公开接口
                         .requestMatchers("/login").permitAll()
+                        // 允许所有OPTIONS请求（CORS预检请求）
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 用户个人中心接口 - 允许所有已认证用户访问
+                        .requestMatchers("/profile", "/profile/**").authenticated()
 
                         // 学生接口
                         .requestMatchers("/student/**").hasAuthority("student")
