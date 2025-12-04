@@ -1,13 +1,22 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 import json
 from app.ai_analyzer import AIAnalyzer
 from app.config import settings
-from starlette.responses import JSONResponse  # 导入JSONResponse用于自定义响应
+from starlette.responses import JSONResponse
 
-# 核心应用实例
 app = FastAPI(title="EduSphere AI分析服务")
+
+# ✅ 新增 CORS 支持
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # ===============================================
