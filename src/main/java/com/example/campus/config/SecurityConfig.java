@@ -1,9 +1,10 @@
 package com.example.campus.config;
 
+import com.example.campus.util.JwtAuthenticationEntryPoint;
+import com.example.campus.util.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,10 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.example.campus.util.JwtAuthenticationEntryPoint;
-import com.example.campus.util.JwtAuthenticationFilter;
-
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.http.HttpMethod;
+import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -42,24 +42,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 👇 添加 CORS 配置
+        http.cors(cors -> cors.configurationSource(request -> {
+            CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOriginPatterns(Arrays.asList("*"));
+            config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "token")); // 允许你用的头
+            config.setAllowCredentials(true);
+            return config;
+        }));
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
+                        // 👇 放行 OPTIONS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 公开接口
                         .requestMatchers("/login").permitAll()
-                        // 允许所有OPTIONS请求（CORS预检请求）
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // 用户个人中心接口 - 允许所有已认证用户访问
-                        .requestMatchers("/profile", "/profile/**").authenticated()
-
-                        // 允许所有 OPTIONS 请求（CORS 预检请求），匹配所有路径
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // 个人中心接口：仅允许已认证用户访问
-                        .requestMatchers(
-                                "/profile",          // 个人中心基础接口
-                                "/profile/**"        // 个人中心下所有子接口（如 /profile/info、/profile/update 等）
-                        ).authenticated()
 
                         // 学生接口
                         .requestMatchers("/student/**").hasAuthority("student")
