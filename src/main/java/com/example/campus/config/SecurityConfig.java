@@ -46,6 +46,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // 公开接口
                         .requestMatchers("/login").permitAll()
+                        // 允许所有OPTIONS请求（CORS预检请求）
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 用户个人中心接口 - 允许所有已认证用户访问
+                        .requestMatchers("/profile", "/profile/**").authenticated()
 
                         // 允许所有 OPTIONS 请求（CORS 预检请求），匹配所有路径
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
