@@ -309,40 +309,6 @@
               </button>
             </form>
           </div>
-          
-          <!-- 我的宿舍分配结果模块 -->
-          <div class="result-card">
-            <h2><i class="bi bi-house-check"></i> 我的宿舍分配结果</h2>
-            <div class="result-content">
-              <div v-if="!assignmentResult" class="result-pending">
-                <i class="bi bi-hourglass-split"></i>
-                <p>您的宿舍分配结果尚未公布</p>
-                <p class="small-text">请先完成宿舍偏好问卷</p>
-              </div>
-              
-              <div v-else class="result-detail">
-                <div class="result-item">
-                  <span>宿舍楼：</span>
-                  <strong>{{ assignmentResult.building }}</strong>
-                </div>
-                <div class="result-item">
-                  <span>房间号：</span>
-                  <strong>{{ assignmentResult.room }}</strong>
-                </div>
-                <div class="result-item">
-                  <span>床位号：</span>
-                  <strong>{{ assignmentResult.bed }}</strong>
-                </div>
-                <div class="result-item">
-                  <span>室友：</span>
-                  <strong>{{ assignmentResult.roommate }}</strong>
-                </div>
-                <button class="btn-contact">
-                  <i class="bi bi-chat-left-text"></i> 联系室友
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
     </main>
@@ -392,10 +358,7 @@ export default {
         
         // 特殊需求
         specialRequest: ''
-      },
-      
-      // 分配结果
-      assignmentResult: null
+      }
     }
   },
   computed: {
@@ -413,10 +376,11 @@ export default {
       if (this.isSubmitting) return
       
       // 验证所有必填项
+      // 验证所有必填项
       const requiredFields = [
         'sleepTime', 'wakeUpTime', 'nap',
         'smoking', 'mindSmoking', 'gaming', 'headphone',
-        'chatting', 'guest', 'activity',
+        'chatting', 'friendsVisit', 'groupActivities', // 注意这里字段名要跟data里的一致
         'cleanliness', 'organization', 'mindMessy',
         'quietStudy', 'noiseTolerance',
         'eatingInRoom', 'fragrance', 'mindSmell'
@@ -441,39 +405,44 @@ export default {
           gaming_freq: this.questionnaire.gaming === 'often' ? 1 : 2,
           headphone_usage: this.questionnaire.headphone === 'often' ? 1 : 2,
           chatting_pref: this.questionnaire.chatting === 'like' ? 1 : 2,
-          guest_acceptance: this.questionnaire.guest === 'accept' ? 1 : 2,
-          group_activity_willingness: this.questionnaire.activity === 'willing' ? 1 : 2,
-          hygiene_requirement: this.questionnaire.cleanliness === 'strict' ? 1 : (this.questionnaire.cleanliness === 'normal' ? 2 : 3),
-          organization_level: this.questionnaire.organization === 'high' ? 1 : 2,
-          roommate_hygiene_tolerance: this.questionnaire.mindMessy === 'notMind' ? 1 : 2,
+          guest_acceptance: this.questionnaire.friendsVisit === 'accept' ? 1 : 2,
+          group_activity_willingness: this.questionnaire.groupActivities === 'willing' ? 1 : 2,
+          hygiene_requirement: this.questionnaire.cleanliness === 'high' ? 1 : (this.questionnaire.cleanliness === 'casual' ? 3 : 2),
+          organization_level: this.questionnaire.organization === 'tidy' ? 1 : 2,
+          roommate_hygiene_tolerance: this.questionnaire.mindMessy === 'mind' ? 1 : 2,
           quiet_study_need: this.questionnaire.quietStudy === 'yes' ? 1 : 2,
           noise_tolerance_level: this.questionnaire.noiseTolerance === 'low' ? 1 : 2,
           dorm_food_freq: this.questionnaire.eatingInRoom === 'often' ? 1 : 2,
           fragrance_usage: this.questionnaire.fragrance === 'often' ? 1 : 2,
-          smell_sensitivity: this.questionnaire.mindSmell === 'mind' ? 1 : 2
+          smell_sensitivity: this.questionnaire.mindSmell === 'mind' ? 1 : 2,
+
+          // 🔥 关键修改：将特殊需求发给后端对应的 self_introduction 字段
+          self_introduction: this.questionnaire.specialRequest
         }
-        
-        // 如果有具体时间，可以添加
+
+        // 补充具体时间字段，防止后端报错
         if (this.questionnaire.sleepTime === 'before12') {
           surveyData.sleep_time = '23:00:00'
         } else {
           surveyData.sleep_time = '00:30:00'
         }
-        
+
         if (this.questionnaire.wakeUpTime === 'before7') {
           surveyData.wake_up_time = '06:30:00'
         } else {
           surveyData.wake_up_time = '07:30:00'
         }
-        
+
         const result = await submitDormSurvey(surveyData)
-        
+
         if (result.code === 1) {
-          alert('问卷提交成功！')
-          // 重新加载问卷数据
-          await this.loadQuestionnaire()
+          // ✅ 修改为等待提示
+          alert('问卷提交成功！您的偏好已录入系统，请耐心等待管理员进行 AI 智能分配。')
+          await this.loadQuestionnaire() // 仅回显问卷
+
+          // ❌ 不要调用 loadMyDormResult()，因为还没分配
         } else {
-          alert(result.msg || '提交失败，请重试')
+          alert(result.msg || '提交失败')
         }
       } catch (error) {
         console.error('提交问卷失败:', error)
@@ -568,16 +537,11 @@ export default {
   gap: 2rem;
 }
 
-.questionnaire-card, .result-card {
+.questionnaire-card {
   background-color: white;
   border-radius: var(--border-radius);
   padding: 1.5rem;
   box-shadow: var(--box-shadow);
-}
-
-.result-card {
-  display: flex;
-  flex-direction: column;
 }
 
 /* 表单样式 */
@@ -681,70 +645,6 @@ export default {
   transform: none;
 }
 
-/* 结果卡片样式 */
-.result-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.result-pending {
-  text-align: center;
-  padding: 3rem 0;
-  color: #666;
-}
-
-.result-pending i {
-  font-size: 3rem;
-  color: var(--primary-color);
-  margin-block-end: 1rem;
-}
-
-.small-text {
-  font-size: 0.9rem;
-  color: #999;
-  margin-block-start: 0.5rem;
-}
-
-.result-detail {
-  padding: 1rem 0;
-}
-
-.result-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 0;
-  border-block-end: 1px solid var(--gray-color);
-  align-items: center;
-}
-
-.result-item:last-child {
-  border-block-end: none;
-}
-
-.btn-contact {
-  inline-size: 100%;
-  padding: 1rem;
-  margin-block-start: 1.5rem;
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: var(--transition);
-  font-weight: 500;
-}
-
-.btn-contact:hover {
-  background-color: #1e4b8a;
-  transform: translateY(-2px);
-}
-
 /* 响应式设计 */
 @media (max-width: 768px) {
   .container {
@@ -755,7 +655,7 @@ export default {
     padding: 1rem;
   }
   
-  .questionnaire-card, .result-card {
+  .questionnaire-card {
     padding: 1rem;
   }
   
@@ -767,12 +667,6 @@ export default {
 @media (max-width: 480px) {
   .form-section h3 {
     font-size: 1rem;
-  }
-  
-  .result-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
   }
 }
 </style>
