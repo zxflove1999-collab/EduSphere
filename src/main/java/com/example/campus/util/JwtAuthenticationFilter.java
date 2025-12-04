@@ -28,6 +28,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        // 👇 👇 👇 加这 4 行 👇 👇 👇
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String requestURI = request.getRequestURI();
         log.info("处理请求: {} method: {}", requestURI, request.getMethod());
